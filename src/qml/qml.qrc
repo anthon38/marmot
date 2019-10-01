@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>SideBar.qml</file>
+        <file>DescriptionBox.qml</file>
+        <file>Marker.qml</file>
+        <file>PolyLine.qml</file>
+        <file>ChartTooltip.qml</file>
+        <file>OpenDialog.qml</file>
+        <file>WayPointItem.qml</file>
+        <file>CustomToolButton.qml</file>
+        <file>RouteInfo.qml</file>
+        <file>SaveAsDialog.qml</file>
+        <file>AggregateStats.qml</file>
+        <file>BackGround.qml</file>
+        <file>PoiMapItem.qml</file>
+        <file>CustomLabel.qml</file>
+        <file>CustomTabButton.qml</file>
+        <file>ProfileChart.qml</file>
+    </qresource>
+</RCC>
