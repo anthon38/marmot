@@ -3,26 +3,16 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
 
-BackGround {
+Drawer {
     id: sidebar
 
+    closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
     clip: true
+    modal: false
 
-    states: [
-        State {
-            name: "visible"
-            AnchorChanges {
-                target: sideBar
-                anchors.left: parent.left
-                anchors.right: undefined
-            }
-        }
-    ]
-    transitions: [
-        Transition {
-            AnchorAnimation { duration: 125 }
-        }
-    ]
+    background: BackGround {
+        radius: 0
+    }
 
     ColumnLayout {
         anchors.fill: parent

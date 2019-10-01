@@ -290,22 +290,14 @@ ApplicationWindow {
 
     SideBar {
         id: sideBar
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            right: parent.left
-            leftMargin: 6
-            rightMargin: 0
-            topMargin: 6
-            bottomMargin: 6
-        }
         width: 400
+        height: application.height
     }
 
     CustomToolButton {
         id: menuButton
-        anchors.left: sideBar.right
         anchors.top: parent.top
+        x: sideBar.position*sideBar.width+6
         height: 36
         width: height
         anchors.margins: 6
@@ -313,7 +305,7 @@ ApplicationWindow {
         text: "\u2261"
         tooltipText: qsTr("Menu")
 
-        onClicked: sideBar.state = sideBar.state === "" ? "visible" : ""
+        onClicked: sideBar.opened ? sideBar.close() : sideBar.open()
     }
 
     CustomToolButton {
