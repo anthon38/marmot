@@ -24,189 +24,191 @@ BackGround {
         }
     ]
 
-    TabBar {
-        id: bar
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 4
-        CustomTabButton {
-            text: qsTr("Files")
+    ColumnLayout {
+        anchors.fill: parent
+        spacing: 0
+
+        TabBar {
+            id: bar
+            Layout.margins: 4
+            Layout.fillWidth: true
+
+            CustomTabButton {
+                text: qsTr("Files")
+            }
+            CustomTabButton {
+                text: qsTr("Search")
+            }
         }
-        CustomTabButton {
-            text: qsTr("Search")
-        }
-    }
 
-    SwipeView {
-        anchors {
-            top: bar.bottom
-            bottom: parent.bottom
-            left: parent.left
-            right: parent.right
-        }
-        currentIndex: bar.currentIndex
+        SwipeView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-        ColumnLayout {
-            spacing: -4
+            currentIndex: bar.currentIndex
 
-            CustomToolButton {
-                id: openButton
+            ColumnLayout {
+                spacing: -4
 
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                Layout.margins: 4
-                text: qsTr("Open...")
-                onClicked: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
+                CustomToolButton {
+                    id: openButton
+
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                    Layout.margins: 4
+                    text: qsTr("Open...")
+                    onClicked: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
+                }
+
+                ListView {
+                    id: filesList
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.margins: 4
+
+                    clip: true
+                    model: filesModel
+                    currentIndex: -1
+                    highlightMoveVelocity: -1
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    delegate: CustomLabel {
+                        default property alias children: mouseArea.data
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                        }
+                        text: name
+                        elide: Text.ElideRight
+                        padding: 4
+
+                        MouseArea{
+                            id: mouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onContainsMouseChanged: {
+                                if (containsMouse) {
+                                    filesList.currentIndex = index
+                                } else {
+                                    filesList.currentIndex = -1
+                                }
+                            }
+                            onClicked: application.fitToTrack(index)
+
+                            CustomToolButton {
+                                anchors {
+                                    top: parent.top
+                                    right: parent.right
+                                    bottom: parent.bottom
+                                    margins: 4
+                                }
+                                text: "x"
+                                onClicked: application.removeFile(index)
+                            }
+                        }
+                    }
+                    highlight: Rectangle {
+                        color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
+                        border.color: colorSet.highlight
+                        border.width: 1
+                        radius: 4
+                    }
+                }
+
             }
 
-            ListView {
-                id: filesList
+            ColumnLayout {
+                spacing: -4
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignHCenter
-                Layout.margins: 4
+                TextField {
+                    id: searchInput
 
-                clip: true
-                model: filesModel
-                currentIndex: -1
-                highlightMoveVelocity: -1
-                boundsBehavior: Flickable.StopAtBounds
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                    Layout.margins: 4
 
-                delegate: CustomLabel {
-                    default property alias children: mouseArea.data
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
-                    text: name
-                    elide: Text.ElideRight
-                    padding: 4
-
-                    MouseArea{
-                        id: mouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onContainsMouseChanged: {
-                            if (containsMouse) {
-                                filesList.currentIndex = index
-                            } else {
-                                filesList.currentIndex = -1
+                    hoverEnabled: true
+                    color: enabled ? colorSet.text : Qt.darker(colorSet.text, 2)
+                    font.italic: text.length == 0
+                    placeholderText: qsTr("Search...")
+                    enabled: searchGeocodeModel.status != GeocodeModel.Loading
+                    onAccepted: {
+                        var coordinateStrings = text.split(',')
+                        if (coordinateStrings.length === 2) {
+                            var first = parseFloat(coordinateStrings[0])
+                            var second = parseFloat(coordinateStrings[1])
+                            var coordinate = QtPositioning.coordinate(first, second)
+                            if (!coordinate.isValid)
+                                coordinate = QtPositioning.coordinate(second, first)
+                            if (coordinate.isValid) {
+                                searchGeocodeModel.query = coordinate
+                                return
                             }
                         }
-                        onClicked: application.fitToTrack(index)
+                        searchGeocodeModel.query = text
+                    }
 
-                        CustomToolButton {
-                            anchors {
-                                top: parent.top
-                                right: parent.right
-                                bottom: parent.bottom
-                                margins: 4
+                    background: Rectangle {
+                        color: Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9)
+                        border.color: (searchInput.hovered || searchInput.activeFocus) ? colorSet.highlight : Qt.lighter(Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9), 2)
+                        border.width: 1
+                        radius: 4
+                    }
+                }
+
+                ListView {
+                    id: searchResultsList
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.margins: 4
+
+                    clip: true
+                    model: searchModel
+                    currentIndex: -1
+                    highlightMoveVelocity: -1
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    delegate: CustomLabel {
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                        }
+                        text: address
+                        elide: Text.ElideRight
+                        padding: 4
+
+                        MouseArea{
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onContainsMouseChanged: {
+                                if (containsMouse) {
+                                    searchResultsList.currentIndex = index
+                                } else {
+                                    searchResultsList.currentIndex = -1
+                                }
                             }
-                            text: "x"
-                            onClicked: application.removeFile(index)
-                        }
-                    }
-                }
-                highlight: Rectangle {
-                    color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
-                    border.color: colorSet.highlight
-                    border.width: 1
-                    radius: 4
-                }
-            }
-
-        }
-
-        ColumnLayout {
-            spacing: -4
-
-            TextField {
-                id: searchInput
-
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                Layout.margins: 4
-
-                hoverEnabled: true
-                color: enabled ? colorSet.text : Qt.darker(colorSet.text, 2)
-                font.italic: text.length == 0
-                placeholderText: qsTr("Search...")
-                enabled: searchGeocodeModel.status != GeocodeModel.Loading
-                onAccepted: {
-                    var coordinateStrings = text.split(',')
-                    if (coordinateStrings.length === 2) {
-                        var first = parseFloat(coordinateStrings[0])
-                        var second = parseFloat(coordinateStrings[1])
-                        var coordinate = QtPositioning.coordinate(first, second)
-                        if (!coordinate.isValid)
-                            coordinate = QtPositioning.coordinate(second, first)
-                        if (coordinate.isValid) {
-                            searchGeocodeModel.query = coordinate
-                            return
-                        }
-                    }
-                    searchGeocodeModel.query = text
-                }
-
-                background: Rectangle {
-                    color: Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9)
-                    border.color: (searchInput.hovered || searchInput.activeFocus) ? colorSet.highlight : Qt.lighter(Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9), 2)
-                    border.width: 1
-                    radius: 4
-                }
-            }
-
-            ListView {
-                id: searchResultsList
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignHCenter
-                Layout.margins: 4
-
-                clip: true
-                model: searchModel
-                currentIndex: -1
-                highlightMoveVelocity: -1
-                boundsBehavior: Flickable.StopAtBounds
-
-                delegate: CustomLabel {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
-                    text: address
-                    elide: Text.ElideRight
-                    padding: 4
-
-                    MouseArea{
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onContainsMouseChanged: {
-                            if (containsMouse) {
-                                searchResultsList.currentIndex = index
-                            } else {
-                                searchResultsList.currentIndex = -1
-                            }
-                        }
-                        onClicked: {
-                            if (searchGeocodeModel.get(index).boundingBox.isValid) {
-                                map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
-                            } else if (searchGeocodeModel.get(index).coordinate.isValid) {
-                                map.center = searchGeocodeModel.get(index).coordinate
-                                map.zoomLevel = 16
+                            onClicked: {
+                                if (searchGeocodeModel.get(index).boundingBox.isValid) {
+                                    map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
+                                } else if (searchGeocodeModel.get(index).coordinate.isValid) {
+                                    map.center = searchGeocodeModel.get(index).coordinate
+                                    map.zoomLevel = 16
+                                }
                             }
                         }
                     }
+                    highlight: Rectangle {
+                        color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
+                        border.color: colorSet.highlight
+                        border.width: 1
+                        radius: 4
+                    }
                 }
-                highlight: Rectangle {
-                    color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
-                    border.color: colorSet.highlight
-                    border.width: 1
-                    radius: 4
-                }
+
             }
 
         }
