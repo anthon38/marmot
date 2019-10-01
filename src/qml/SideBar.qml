@@ -109,12 +109,7 @@ BackGround {
                             }
                         }
                     }
-                    highlight: Rectangle {
-                        color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
-                        border.color: colorSet.highlight
-                        border.width: 1
-                        radius: 4
-                    }
+                    highlight: listHighlight
                 }
 
             }
@@ -201,16 +196,21 @@ BackGround {
                             }
                         }
                     }
-                    highlight: Rectangle {
-                        color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
-                        border.color: colorSet.highlight
-                        border.width: 1
-                        radius: 4
-                    }
+                    highlight: listHighlight
                 }
 
             }
 
+        }
+
+        Component {
+            id: listHighlight
+            Rectangle {
+                color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
+                border.color: colorSet.highlight
+                border.width: 1
+                radius: 4
+            }
         }
 
     }
