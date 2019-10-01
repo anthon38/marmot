@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import QtLocation 5.13
-import QtQuick.Controls 2.5
 
 MapItemGroup {
     property alias text: nameLabel.text

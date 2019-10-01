@@ -3,7 +3,6 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 2.3
 import QtPositioning 5.5
 import QtLocation 5.13
-//import QtQuick.Controls.Universal 2.12
 
 import HikeManager 1.0
 

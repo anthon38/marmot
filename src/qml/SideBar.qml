@@ -2,7 +2,6 @@ import QtQuick 2.0
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
-import QtPositioning 5.5
 
 BackGround {
     id: sidebar

@@ -1,7 +1,5 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import QtCharts 2.1
-//import QtQuick.Controls.Universal 2.12
 import HikeManager 1.0
 
 BackGround {
