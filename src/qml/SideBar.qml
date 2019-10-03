@@ -2,20 +2,46 @@ import QtQuick 2.0
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
+import QtGraphicalEffects 1.13
 
 Drawer {
     id: sidebar
 
     closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
-    clip: true
     modal: false
 
     background: BackGround {
         radius: 0
+
+        LinearGradient {
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.right
+            }
+            width: 6
+            start: Qt.point(0, 0)
+            end: Qt.point(width, 0)
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: Qt.rgba(0, 0, 0, 0.9)
+                }
+                GradientStop {
+                    position: 0.3
+                    color: Qt.rgba(0, 0, 0, 0.5)
+                }
+                GradientStop {
+                    position: 1.0
+                    color:  "transparent"
+                }
+            }
+        }
     }
 
     ColumnLayout {
         anchors.fill: parent
+        clip: true
         spacing: 0
 
         TabBar {
