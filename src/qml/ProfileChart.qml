@@ -54,9 +54,10 @@ Item {
             id: plotMouseArea
             anchors.fill: parent
             hoverEnabled: true
+            acceptedButtons: Qt.AllButtons
 
             onPositionChanged: {
-                if (!model)
+                if (!model || !containsMouse)
                     return;
                 verticalBar.x = mouse.x-1 // for some reason there's a 1px shift
                 verticalBar.visible = true
