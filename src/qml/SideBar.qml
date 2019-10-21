@@ -120,6 +120,7 @@ Drawer {
                                     bottom: parent.bottom
                                     margins: 4
                                 }
+                                visible: mouseArea.containsMouse
                                 text: "x"
                                 onClicked: application.removeFile(index)
                             }
