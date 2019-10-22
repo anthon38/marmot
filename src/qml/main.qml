@@ -214,6 +214,93 @@ ApplicationWindow {
                 text: name
             }
         }
+
+        CustomToolButton {
+            id: plotRouteButton
+            anchors.right: parent.right
+            anchors.bottom: mapTypeButton.top
+            height: 36
+            width: height
+            anchors.margins: 6
+            font.pointSize: 11
+            text: "\ud83d\udccf"
+            tooltipText: qsTr("Plot a route")
+            checkable: true
+
+            onClicked: plotInfo.state = plotInfo.state === "" ? "visible" : ""
+        }
+
+        RouteInfo {
+            id: plotInfo
+            anchors.right: plotRouteButton.left
+            anchors.top: parent.bottom
+            anchors.margins: 6
+        }
+
+        CustomToolButton {
+            id: mapTypeButton
+            anchors.right: parent.right
+            anchors.bottom: fitToViewButton.top
+            height: 36
+            width: height
+            anchors.margins: 6
+            font.pointSize: 11
+            text: map.activeMapType === map.supportedMapTypes[1] ? "\ud83c\udf10" : "\ud83c\udf0d"
+            tooltipText: map.activeMapType === map.supportedMapTypes[1] ? qsTr("Hiking map") : qsTr("Satellite map")
+
+            onClicked: {
+                if (map.activeMapType === map.supportedMapTypes[1]) {
+                    map.activeMapType = map.supportedMapTypes[6]
+                }
+                else if (map.activeMapType === map.supportedMapTypes[6]) {
+                    map.activeMapType = map.supportedMapTypes[1]
+                }
+                else {
+                    console.log(map.activeMapType)
+                }
+            }
+        }
+
+        CustomToolButton {
+            id: fitToViewButton
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 36
+            width: height
+            anchors.margins: 6
+            clip: true
+            font.pointSize: 11
+            text: "\u26f6"
+            tooltipText: qsTr("Fit to view")
+
+            onClicked: {
+                if (map.mapItems.length > 0) {
+                    map.fitViewportToVisibleMapItems()
+                } else {
+                    centerMap()
+                }
+            }
+        }
+
+        ProfileChart {
+            id: profileChart
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: 6
+            width: 400
+            height: 200
+            visible: count > 0
+
+            model: filesModel
+        }
+
+        AggregateStats {
+            id: aggregateStats
+            anchors.top: profileChart.bottom
+            anchors.topMargin: 6
+            anchors.right: profileChart.right
+            visible: profileChart.visible
+        }
     }
 
     MapQuickItem {
@@ -306,93 +393,6 @@ ApplicationWindow {
         tooltipText: qsTr("Menu")
 
         onClicked: sideBar.opened ? sideBar.close() : sideBar.open()
-    }
-
-    CustomToolButton {
-        id: plotRouteButton
-        anchors.right: parent.right
-        anchors.bottom: mapTypeButton.top
-        height: 36
-        width: height
-        anchors.margins: 6
-        font.pointSize: 11
-        text: "\ud83d\udccf"
-        tooltipText: qsTr("Plot a route")
-        checkable: true
-
-        onClicked: plotInfo.state = plotInfo.state === "" ? "visible" : ""
-    }
-
-    RouteInfo {
-        id: plotInfo
-        anchors.right: plotRouteButton.left
-        anchors.top: parent.bottom
-        anchors.margins: 6
-    }
-
-    CustomToolButton {
-        id: mapTypeButton
-        anchors.right: parent.right
-        anchors.bottom: fitToViewButton.top
-        height: 36
-        width: height
-        anchors.margins: 6
-        font.pointSize: 11
-        text: map.activeMapType === map.supportedMapTypes[1] ? "\ud83c\udf10" : "\ud83c\udf0d"
-        tooltipText: map.activeMapType === map.supportedMapTypes[1] ? qsTr("Hiking map") : qsTr("Satellite map")
-
-        onClicked: {
-            if (map.activeMapType === map.supportedMapTypes[1]) {
-                map.activeMapType = map.supportedMapTypes[6]
-            }
-            else if (map.activeMapType === map.supportedMapTypes[6]) {
-                map.activeMapType = map.supportedMapTypes[1]
-            }
-            else {
-                console.log(map.activeMapType)
-            }
-        }
-    }
-
-    CustomToolButton {
-        id: fitToViewButton
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 36
-        width: height
-        anchors.margins: 6
-        clip: true
-        font.pointSize: 11
-        text: "\u26f6"
-        tooltipText: qsTr("Fit to view")
-
-        onClicked: {
-            if (map.mapItems.length > 0) {
-                   map.fitViewportToVisibleMapItems()
-            } else {
-               centerMap()
-            }
-        }
-    }
-
-    ProfileChart {
-        id: profileChart
-        anchors.top: map.top
-        anchors.right: map.right
-        anchors.margins: 6
-        width: 400
-        height: 200
-        visible: count > 0
-
-        model: filesModel
-    }
-
-    AggregateStats {
-        id: aggregateStats
-        anchors.top: profileChart.bottom
-        anchors.topMargin: 6
-        anchors.right: profileChart.right
-        visible: profileChart.visible
     }
 
     DropArea {
