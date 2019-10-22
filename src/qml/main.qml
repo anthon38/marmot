@@ -154,7 +154,14 @@ ApplicationWindow {
 
     Map {
         id: map
-        anchors.fill: parent
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            right: parent.right
+            left: menuButton.left
+            leftMargin: -6
+        }
+
         plugin: osmPlugin
         zoomLevel: 10
         onCopyrightLinkActivated: Qt.openUrlExternally(link)
