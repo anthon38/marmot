@@ -71,7 +71,7 @@ Drawer {
                     actions: [
                         Kirigami.Action {
                             iconName: "document-open"
-                            text: qsTr("Open file")
+                            text: qsTr("Open...")
                             onTriggered: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
                         },
                         Kirigami.Action {
