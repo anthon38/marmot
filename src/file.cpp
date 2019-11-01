@@ -261,10 +261,10 @@ void File::exportToGpx(const QString &fileName) const
     for (const auto &p : m_pois) {
         Poi *poi = static_cast<Poi*>(p);
         writer.writeStartElement(QStringLiteral("wpt"));
-        writer.writeAttribute(QStringLiteral("lat"), QString::number(poi->coordinate().latitude()));
-        writer.writeAttribute(QStringLiteral("lon"), QString::number(poi->coordinate().longitude()));
+        writer.writeAttribute(QStringLiteral("lat"), QString::number(poi->coordinate().latitude(), 'f', QLocale::FloatingPointShortest));
+        writer.writeAttribute(QStringLiteral("lon"), QString::number(poi->coordinate().longitude(), 'f', QLocale::FloatingPointShortest));
         if (!qIsNaN(poi->coordinate().altitude()))
-            writer.writeTextElement(QStringLiteral("ele"), QString::number(poi->coordinate().altitude(), 'f', 1));
+            writer.writeTextElement(QStringLiteral("ele"), QString::number(poi->coordinate().altitude(), 'f', QLocale::FloatingPointShortest));
         writer.writeTextElement(QStringLiteral("name"), poi->name());
         writer.writeEndElement(); // wpt
     }
@@ -278,9 +278,9 @@ void File::exportToGpx(const QString &fileName) const
         for (int i=0; i < track->length(); ++i) {
             writer.writeStartElement(QStringLiteral("trkpt"));
             QGeoCoordinate coordinate = track->path().at(i);
-            writer.writeAttribute(QStringLiteral("lat"), QString::number(coordinate.latitude()));
-            writer.writeAttribute(QStringLiteral("lon"), QString::number(coordinate.longitude()));
-            writer.writeTextElement(QStringLiteral("ele"), QString::number(coordinate.altitude(), 'f', 1));
+            writer.writeAttribute(QStringLiteral("lat"), QString::number(coordinate.latitude(), 'f', QLocale::FloatingPointShortest));
+            writer.writeAttribute(QStringLiteral("lon"), QString::number(coordinate.longitude(), 'f', QLocale::FloatingPointShortest));
+            writer.writeTextElement(QStringLiteral("ele"), QString::number(coordinate.altitude(), 'f', QLocale::FloatingPointShortest));
             QString timeStamp = track->timeStamps().at(i);
             if (!timeStamp.isEmpty())
                 writer.writeTextElement(QStringLiteral("time"), timeStamp);
