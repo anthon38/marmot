@@ -3,6 +3,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
 import QtGraphicalEffects 1.13
+import org.kde.kirigami 2.9 as Kirigami
 
 Drawer {
     id: sidebar
@@ -64,104 +65,71 @@ Drawer {
             currentIndex: bar.currentIndex
 
             ColumnLayout {
-                spacing: -4
 
-                CustomToolButton {
-                    id: openButton
-
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                    Layout.margins: 4
-                    text: qsTr("Open...")
-                    onClicked: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
+                Kirigami.ActionToolBar {
+                    display: Button.IconOnly
+                    actions: [
+                        Kirigami.Action {
+                            iconName: "document-open"
+                            text: qsTr("Open file")
+                            onTriggered: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
+                        },
+                        Kirigami.Action {
+                            iconName: "document-close"
+                            text: qsTr("Close all")
+                            onTriggered: application.closeAllFiles()
+                        }]
                 }
 
-                ListView {
-                    id: filesList
+                Kirigami.ScrollablePage {
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.margins: 4
 
-                    clip: true
-                    model: filesModel
-                    currentIndex: -1
-                    highlightMoveVelocity: -1
-                    boundsBehavior: Flickable.StopAtBounds
+                    ListView {
+                        id: filesList
 
-                    delegate: CustomLabel {
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                        }
-                        text: name
-                        elide: Text.ElideRight
-                        padding: 4
+                        clip: true
+                        model: filesModel
+                        currentIndex: -1
+                        highlightMoveVelocity: -1
+                        boundsBehavior: Flickable.StopAtBounds
 
-                        MouseArea{
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onContainsMouseChanged: {
-                                if (containsMouse) {
-                                    filesList.currentIndex = index
-                                } else {
-                                    filesList.currentIndex = -1
-                                }
+                        delegate: Kirigami.SwipeListItem {
+                            contentItem: Label {
+                                text: name
                             }
-                            onClicked: application.fitToTrack(index)
-
-                            CustomToolButton {
-                                anchors {
-                                    top: parent.top
-                                    right: closeButton.left
-                                    bottom: parent.bottom
-                                    margins: 4
-                                }
-                                visible: mouseArea.containsMouse
-                                text: "e"
-                                onClicked: {
-                                    if (application.activeFile === filesModel.get(index)) {
-                                        application.activeFile = null
-                                    } else {
-                                        application.activeFile = filesModel.get(index)
+                            actions: [
+                                Kirigami.Action {
+                                    iconName: "document-edit"
+                                    text: qsTr("Edit file")
+                                    onTriggered: {
+                                        if (application.activeFile === filesModel.get(index)) {
+                                            application.activeFile = null
+                                        } else {
+                                            application.activeFile = filesModel.get(index)
+                                        }
                                     }
-                                }
-                            }
-
-                            CustomToolButton {
-                                id: closeButton
-                                anchors {
-                                    top: parent.top
-                                    right: parent.right
-                                    bottom: parent.bottom
-                                    margins: 4
-                                }
-                                visible: mouseArea.containsMouse
-                                text: "x"
-                                onClicked: application.removeFile(index)
-                            }
+                                },
+                                Kirigami.Action {
+                                    iconName: "document-close"
+                                    text: qsTr("Close file")
+                                    onTriggered: application.removeFile(index)
+                                }]
+                            onClicked: application.fitToTrack(index)
                         }
                     }
-                    highlight: listHighlight
                 }
-
             }
 
             ColumnLayout {
-                spacing: -4
 
-                TextField {
+                Kirigami.ActionTextField {
                     id: searchInput
 
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                    Layout.margins: 4
 
-                    hoverEnabled: true
-                    color: enabled ? colorSet.text : Qt.darker(colorSet.text, 2)
-                    font.italic: text.length == 0
+                    font.italic: text.length === 0
                     placeholderText: qsTr("Search...")
                     enabled: searchGeocodeModel.status != GeocodeModel.Loading
                     onAccepted: {
@@ -179,48 +147,35 @@ Drawer {
                         }
                         searchGeocodeModel.query = text
                     }
-
-                    background: Rectangle {
-                        color: Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9)
-                        border.color: (searchInput.hovered || searchInput.activeFocus) ? colorSet.highlight : Qt.lighter(Qt.rgba(colorSet.window.r, colorSet.window.g, colorSet.window.b, 0.9), 2)
-                        border.width: 1
-                        radius: 4
-                    }
+                    rightActions: [
+                        Kirigami.Action {
+                            iconName: "edit-clear"
+                            visible: searchInput.text !== ""
+                            onTriggered: {
+                                searchInput.text = ""
+                                searchInput.accepted()
+                            }
+                        }
+                    ]
                 }
 
-                ListView {
-                    id: searchResultsList
+                Kirigami.ScrollablePage {
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.margins: 4
 
-                    clip: true
-                    model: searchModel
-                    currentIndex: -1
-                    highlightMoveVelocity: -1
-                    boundsBehavior: Flickable.StopAtBounds
+                    ListView {
+                        id: searchResultsList
 
-                    delegate: CustomLabel {
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                        }
-                        text: address
-                        elide: Text.ElideRight
-                        padding: 4
+                        clip: true
+                        model: searchModel
+                        currentIndex: -1
+                        highlightMoveVelocity: -1
+                        boundsBehavior: Flickable.StopAtBounds
 
-                        MouseArea{
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onContainsMouseChanged: {
-                                if (containsMouse) {
-                                    searchResultsList.currentIndex = index
-                                } else {
-                                    searchResultsList.currentIndex = -1
-                                }
-                            }
+                        delegate: Kirigami.BasicListItem {
+                            reserveSpaceForIcon: false
+                            label: address
                             onClicked: {
                                 if (searchGeocodeModel.get(index).boundingBox.isValid) {
                                     map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
@@ -231,21 +186,9 @@ Drawer {
                             }
                         }
                     }
-                    highlight: listHighlight
                 }
-
             }
 
-        }
-
-        Component {
-            id: listHighlight
-            Rectangle {
-                color: Qt.rgba(colorSet.highlight.r, colorSet.highlight.g, colorSet.highlight.b, 0.4)
-                border.color: colorSet.highlight
-                border.width: 1
-                radius: 4
-            }
         }
 
     }

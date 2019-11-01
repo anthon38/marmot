@@ -382,6 +382,12 @@ ApplicationWindow {
         aggregateStats.update()
     }
 
+    function closeAllFiles() {
+        while (filesModel.count > 0)
+            filesModel.remove(filesModel.count-1)
+        aggregateStats.update()
+    }
+
     function fitToTrack(index) {
         map.fitViewportToGeoShape(filesModel.get(index).boundingBox, 200)
     }
