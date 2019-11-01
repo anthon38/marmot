@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Dialogs 1.3
 
 FileDialog {
+    property var file: null
     id: fileDialog
     title: qsTr("Save as...")
     folder: shortcuts.home
@@ -9,7 +10,8 @@ FileDialog {
     selectExisting: false
     nameFilters: [ qsTr("GPX files (*.gpx)"), qsTr("All files (*)")]
     onAccepted: {
-        plotInfo.file.exportToGpx(fileDialog.fileUrl)
+        if (file)
+            file.exportToGpx(fileDialog.fileUrl)
         fileDialog.destroy()
     }
     onRejected: fileDialog.destroy()

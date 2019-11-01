@@ -3,6 +3,7 @@
 #include <QFontInfo>
 #include <QGeoCoordinate>
 #include <QtMath>
+#include <QDateTime>
 #include <QDebug>
 
 #include <algorithm>
@@ -91,6 +92,91 @@ void Track::addPoint(const QGeoCoordinate &point, const QString &timeStamp)
     m_averagedAltitudes.append(point.altitude());
     m_distances2D.append(m_distance2D);
     m_timeStamps.append(timeStamp);
+}
+
+void Track::movePoint(int index, const QGeoCoordinate &point)
+{
+    if (index >= 0 && index < m_path.length()) {
+        QGeoCoordinate previousPoint, nextPoint;
+        qreal dist2D, diff;
+        qreal distance2DBefore = m_distance2D;
+        if (index > 0) {
+            previousPoint = m_path.at(index-1);
+            dist2D = m_path.at(index).distanceTo(previousPoint);
+            diff = m_path.at(index).altitude()-previousPoint.altitude();
+            m_distance2D -= dist2D;
+            m_distance3D -= qSqrt(dist2D*dist2D+diff*diff);
+        }
+        if (index < m_path.length()-1) {
+            nextPoint = m_path.at(index+1);
+            dist2D = m_path.at(index).distanceTo(nextPoint);
+            diff = m_path.at(index).altitude()-nextPoint.altitude();
+            m_distance2D -= dist2D;
+            m_distance3D -= qSqrt(dist2D*dist2D+diff*diff);
+        }
+        m_path[index].setLatitude(point.latitude());
+        m_path[index].setLongitude(point.longitude());
+        if (index > 0) {
+            previousPoint = m_path.at(index-1);
+            dist2D = m_path.at(index).distanceTo(previousPoint);
+            diff = m_path.at(index).altitude()-previousPoint.altitude();
+            m_distance2D += dist2D;
+            m_distance3D += qSqrt(dist2D*dist2D+diff*diff);
+        }
+        if (index < m_path.length()-1) {
+            nextPoint = m_path.at(index+1);
+            dist2D = m_path.at(index).distanceTo(nextPoint);
+            diff = m_path.at(index).altitude()-nextPoint.altitude();
+            m_distance2D += dist2D;
+            m_distance3D += qSqrt(dist2D*dist2D+diff*diff);
+        }
+        qreal diffDist2D = m_distance2D-distance2DBefore;
+        for (int i = index; i < m_path.length(); ++i) {
+            if (i!=0) m_distances2D[i] += diffDist2D;
+        }
+        Q_EMIT(pathChanged());
+        Q_EMIT(statisticsChanged());
+    }
+}
+
+void Track::removePoint(int index)
+{
+    if (index >= 0 && index < m_path.length()) {
+        m_path.remove(index);
+        m_averagedAltitudes.remove(index);
+        m_distances2D.remove(index);
+        m_timeStamps.remove(index);
+
+        m_distance2D = 0.0;
+        m_distance3D = 0.0;
+        m_altitudeMin = 0.0;
+        m_altitudeMax = 0.0;
+        for (int i = 0; i < m_distances2D.length(); ++i) {
+            //FIXME: dont recompute minmax if altitude is not an extrema
+            if (i == 0) {
+                m_altitudeMax = m_path.at(i).altitude();
+                m_altitudeMin = m_path.at(i).altitude();
+            } else {
+                m_altitudeMax = qMax(m_altitudeMax, m_path.at(i).altitude());
+                m_altitudeMin = qMin(m_altitudeMin, m_path.at(i).altitude());
+
+                QGeoCoordinate previousPoint(m_path.at(i-1));
+                qreal dist2D = m_path.at(i).distanceTo(previousPoint);
+                qreal diff = m_path.at(i).altitude()-previousPoint.altitude();
+                m_distance2D += dist2D;
+                m_distance3D += qSqrt(dist2D*dist2D+diff*diff);
+            }
+            m_distances2D[i] = m_distance2D;
+        }
+        computeStatistics();
+        if (index == 0 || index == m_timeStamps.length()) {
+            QDateTime t1 = QDateTime::fromString(m_timeStamps.first(), Qt::ISODate);
+            QDateTime t2 = QDateTime::fromString(m_timeStamps.last(), Qt::ISODate);
+            m_duration = secondsToFormattedString(t1.secsTo(t2));
+        }
+        Q_EMIT(pathChanged());
+        Q_EMIT(statisticsChanged());
+    }
 }
 
 void Track::setPath(const QVariantList &path)

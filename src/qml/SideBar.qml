@@ -91,7 +91,6 @@ Drawer {
                     boundsBehavior: Flickable.StopAtBounds
 
                     delegate: CustomLabel {
-                        default property alias children: mouseArea.data
                         anchors {
                             left: parent.left
                             right: parent.right
@@ -114,6 +113,25 @@ Drawer {
                             onClicked: application.fitToTrack(index)
 
                             CustomToolButton {
+                                anchors {
+                                    top: parent.top
+                                    right: closeButton.left
+                                    bottom: parent.bottom
+                                    margins: 4
+                                }
+                                visible: mouseArea.containsMouse
+                                text: "e"
+                                onClicked: {
+                                    if (application.activeFile === filesModel.get(index)) {
+                                        application.activeFile = null
+                                    } else {
+                                        application.activeFile = filesModel.get(index)
+                                    }
+                                }
+                            }
+
+                            CustomToolButton {
+                                id: closeButton
                                 anchors {
                                     top: parent.top
                                     right: parent.right

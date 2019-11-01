@@ -3,6 +3,8 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 2.3
 import QtPositioning 5.5
 import QtLocation 5.13
+import QtQuick.Layouts 1.3
+import QtQml 2.13
 
 import HikeManager 1.0
 
@@ -11,6 +13,7 @@ ApplicationWindow {
 
     property var currentLocation: QtPositioning.coordinate(45.187778, 5.726945) //G-Town
     property var activeTrack: null
+    property var activeFile: null
 
     visible: true
     visibility: Window.Maximized
@@ -192,6 +195,28 @@ ApplicationWindow {
                     }
                 }
             }
+            onPressed: {
+                if (editToolBar.deletingZone) {
+                    map.gesture.enabled = false
+                    zoneSelection.origin = Qt.point(mouse.x, mouse.y)
+                    map.addMapItem(zoneSelection)
+                }
+            }
+            onPositionChanged: {
+                if (editToolBar.deletingZone) {
+                    var xMin = Math.min(zoneSelection.origin.x, mouse.x)
+                    var xMax = Math.max(zoneSelection.origin.x, mouse.x)
+                    var yMin = Math.min(zoneSelection.origin.y, mouse.y)
+                    var yMax = Math.max(zoneSelection.origin.y, mouse.y)
+                    zoneSelection.topLeft = map.toCoordinate(Qt.point(xMin, yMin))
+                    zoneSelection.bottomRight = map.toCoordinate(Qt.point(xMax, yMax))
+                }
+            }
+            onReleased: {
+                if (editToolBar.deletingZone) {
+                    map.gesture.enabled = true
+                }
+            }
         }
 
         MapItemView {
@@ -221,12 +246,78 @@ ApplicationWindow {
                 text: name
             }
         }
+
+        Instantiator {
+            model: activeFile ? activeFile.tracks : null
+            delegate: MapItemView {
+                model: ListModel {
+                    id: wpModel
+                }
+                Component.onCompleted: {
+                    var path = modelData.path
+                    for (var i = 0; i < modelData.length; ++i) {
+                        model.append({"latitude": path[i].latitude, "longitude": path[i].longitude})
+                    }
+                }
+
+                delegate: WayPointItem {
+                    readonly property var isSelected: zoneSelection.region.contains(coordinate)
+                    coordinate: QtPositioning.coordinate(latitude, longitude)
+                    color: isSelected ? "black" : "red"
+                    MouseArea {
+                        anchors.fill: parent
+                        drag.target: editToolBar.movingPoint ? parent : null
+                        onReleased: if (editToolBar.movingPoint) modelData.movePoint(index, coordinate)
+                        onDoubleClicked:  if (editToolBar.deletingPoint) remove()
+                    }
+                    Connections {
+                        target: deleteShortcut
+                        onActivated: if (isSelected) remove()
+                    }
+                    function remove() {
+                        modelData.removePoint(index)
+                        wpModel.remove(index)
+                    }
+                }
+            }
+            onObjectAdded: map.addMapItemView(object)
+            onObjectRemoved: map.removeMapItemView(object)
+        }
     }
 
     MapQuickItem {
         id: markerDescription
         sourceItem: DescriptionBox {
             id: markerdbox
+        }
+    }
+
+    MapRectangle {
+        id: zoneSelection
+        property variant region: QtPositioning.rectangle(topLeft, bottomRight)
+        property var origin: Qt.point(-1, -1)
+    }
+
+    EditToolBar {
+        id: editToolBar
+        anchors {
+            bottom: parent.top
+            margins: 6
+            horizontalCenter: parent.horizontalCenter
+        }
+        state: activeFile ? "visible" : ""
+        Shortcut {
+            id: deleteShortcut
+            sequence: StandardKey.Delete
+            context: Qt.ApplicationShortcut
+            onActivated: map.removeMapItem(zoneSelection)
+        }
+        onDeletingZoneChanged: if (!deletingZone) map.removeMapItem(zoneSelection)
+    }
+
+    onActiveFileChanged: {
+        if (activeFile) {
+            editToolBar.fileName = activeFile.name
         }
     }
 

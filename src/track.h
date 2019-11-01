@@ -52,6 +52,8 @@ public:
     Q_INVOKABLE int indexFromDistance(qreal distance) const;
     Q_INVOKABLE QGeoCoordinate coordinateFromDistance(qreal distance) const;
     void addPoint(const QGeoCoordinate &point, const QString &timeStamp = QString());
+    Q_INVOKABLE void movePoint(int index, const QGeoCoordinate &point);
+    Q_INVOKABLE void removePoint(int index);
     void setPath(const QVariantList &path);
     void computeStatistics(int nAverage = 3, qreal threshold = 3.0);
 

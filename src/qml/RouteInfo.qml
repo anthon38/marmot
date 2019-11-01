@@ -78,7 +78,10 @@ BackGround {
         anchors.margins: 6
         text: "\u2b07"
         tooltipText: qsTr("Export to GPX")
-        onClicked: Qt.createComponent("SaveAsDialog.qml").createObject(parent)
+        onClicked: {
+            var dialog = Qt.createComponent("SaveAsDialog.qml").createObject(parent)
+            dialog.file = plotInfo.file
+        }
     }
 
     TextArea {
