@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 
@@ -26,37 +26,46 @@ ToolBar {
             AnchorAnimation { duration: 125 }
         }
     ]
+    onStateChanged: if (state == "visible") navigateButton.forceActiveFocus()
 
     background: BackGround {}
 
     RowLayout {
         anchors.fill: parent
-        CustomToolButton {
+        Button {
             id: navigateButton
-            text: qsTr("n")
-            tooltipText: qsTr("Navigate the map")
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Navigate the map")
+            icon.name: "transform-move"
             checked: true
             checkable: true
             autoExclusive: true
         }
-        CustomToolButton {
+        Button {
             id: deleteButton
-            text: qsTr("x")
-            tooltipText: qsTr("Delete a point")
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Delete a point")
+            icon.name: "node-delete"
             checkable: true
             autoExclusive: true
         }
-        CustomToolButton {
+        Button {
             id: deleteZoneButton
-            text: qsTr("xZ")
-            tooltipText: qsTr("Delete points within a zone")
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Select a zone")
+            icon.name: "tool_rect_selection"
             checkable: true
             autoExclusive: true
         }
-        CustomToolButton {
+        Button {
             id: moveButton
-            text: qsTr("m")
-            tooltipText: qsTr("Move a point")
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Move a point")
+            icon.name: "edit-node"
             checkable: true
             autoExclusive: true
         }
@@ -67,13 +76,22 @@ ToolBar {
             verticalAlignment: Qt.AlignVCenter
             Layout.fillWidth: true
         }
-        CustomToolButton {
-            text: "\u2b07"
-            tooltipText: qsTr("Export to GPX")
+        Button {
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Export to GPX")
+            icon.name: "document-save-as"
             onClicked: {
                 var dialog = Qt.createComponent("SaveAsDialog.qml").createObject(parent)
                 dialog.file = application.activeFile
             }
+        }
+        Button {
+            ToolTip.visible: hovered
+            ToolTip.delay: 500
+            ToolTip.text: qsTr("Exit edit mode")
+            icon.name: "dialog-close"
+            onClicked: application.activeFile = null
         }
     }
 }
