@@ -5,6 +5,7 @@ import QtPositioning 5.5
 import QtLocation 5.13
 import QtQuick.Layouts 1.3
 import QtQml 2.13
+import org.kde.kirigami 2.9 as Kirigami
 
 import HikeManager 1.0
 
@@ -398,29 +399,23 @@ ApplicationWindow {
         height: application.height
     }
 
-    CustomToolButton {
+    CustomButton {
         id: menuButton
         anchors.top: parent.top
         x: sideBar.position*sideBar.width+6
-        height: 36
-        width: height
         anchors.margins: 6
-        font.pointSize: 11
-        text: "\u2261"
+        icon.name: "open-menu-symbolic"
         tooltipText: qsTr("Menu")
 
         onClicked: sideBar.opened ? sideBar.close() : sideBar.open()
     }
 
-    CustomToolButton {
+    CustomButton {
         id: plotRouteButton
         anchors.right: parent.right
         anchors.bottom: mapTypeButton.top
-        height: 36
-        width: height
         anchors.margins: 6
-        font.pointSize: 11
-        text: "\ud83d\udccf"
+        icon.name: "routeplanning"
         tooltipText: qsTr("Plot a route")
         checkable: true
 
@@ -434,15 +429,13 @@ ApplicationWindow {
         anchors.margins: 6
     }
 
-    CustomToolButton {
+    CustomButton {
         id: mapTypeButton
         anchors.right: parent.right
         anchors.bottom: fitToViewButton.top
-        height: 36
-        width: height
         anchors.margins: 6
-        font.pointSize: 11
         text: map.activeMapType === map.supportedMapTypes[1] ? "\ud83c\udf10" : "\ud83c\udf0d"
+        icon.name: "layer-visible-on"
         tooltipText: map.activeMapType === map.supportedMapTypes[1] ? qsTr("Hiking map") : qsTr("Satellite map")
 
         onClicked: {
@@ -458,16 +451,12 @@ ApplicationWindow {
         }
     }
 
-    CustomToolButton {
+    CustomButton {
         id: fitToViewButton
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        height: 36
-        width: height
         anchors.margins: 6
-        clip: true
-        font.pointSize: 11
-        text: "\u26f6"
+        icon.name: "zoom-fit-selection"
         tooltipText: qsTr("Fit to view")
 
         onClicked: {

@@ -18,5 +18,6 @@
         <file>CustomTabButton.qml</file>
         <file>ProfileChart.qml</file>
         <file>EditToolBar.qml</file>
+        <file>CustomButton.qml</file>
     </qresource>
 </RCC>

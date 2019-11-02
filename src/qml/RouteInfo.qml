@@ -1,5 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
+import org.kde.kirigami 2.9 as Kirigami
+
 import HikeManager 1.0
 
 BackGround {
@@ -48,12 +50,13 @@ BackGround {
         }
     }
 
-    CustomToolButton {
+    CustomButton {
         id: clearButton
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.margins: 6
-        text: "\uD83E\uDDF9"
+        iconSize: Kirigami.Units.gridUnit
+        icon.name: "edit-clear-all-symbolic"
         tooltipText: qsTr("Clear")
         onClicked: {
             aQuery.clearWaypoints()
@@ -61,22 +64,24 @@ BackGround {
         }
     }
 
-    CustomToolButton {
+    CustomButton {
         id: poiButton
         anchors.top: parent.top
         anchors.horizontalCenter: textInfo.horizontalCenter
         anchors.margins: 6
-        text: "\uD83D\uDEA9"
+        iconSize: Kirigami.Units.gridUnit
+        icon.name: "flag"
         tooltipText: qsTr("Add points of interest")
         checkable: true
     }
 
-    CustomToolButton {
+    CustomButton {
         id: exportButton
         anchors.top: parent.top
         anchors.right: textInfo.right
         anchors.margins: 6
-        text: "\u2b07"
+        iconSize: Kirigami.Units.gridUnit
+        icon.name: "document-save-as-symbolic"
         tooltipText: qsTr("Export to GPX")
         onClicked: {
             var dialog = Qt.createComponent("SaveAsDialog.qml").createObject(parent)
