@@ -11,31 +11,27 @@ Drawer {
     closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
     modal: false
 
-    background: BackGround {
-        radius: 0
-
-        LinearGradient {
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: parent.right
+    LinearGradient {
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            left: parent.right
+        }
+        width: 6
+        start: Qt.point(0, 0)
+        end: Qt.point(width, 0)
+        gradient: Gradient {
+            GradientStop {
+                position: 0.0
+                color: Qt.rgba(0, 0, 0, 0.5)
             }
-            width: 6
-            start: Qt.point(0, 0)
-            end: Qt.point(width, 0)
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: Qt.rgba(0, 0, 0, 0.9)
-                }
-                GradientStop {
-                    position: 0.3
-                    color: Qt.rgba(0, 0, 0, 0.5)
-                }
-                GradientStop {
-                    position: 1.0
-                    color:  "transparent"
-                }
+            GradientStop {
+                position: 0.3
+                color: Qt.rgba(0, 0, 0, 0.3)
+            }
+            GradientStop {
+                position: 1.0
+                color:  "transparent"
             }
         }
     }
@@ -50,10 +46,10 @@ Drawer {
             Layout.margins: 4
             Layout.fillWidth: true
 
-            CustomTabButton {
+            TabButton {
                 text: qsTr("Files")
             }
-            CustomTabButton {
+            TabButton {
                 text: qsTr("Search")
             }
         }
