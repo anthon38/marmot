@@ -3,7 +3,6 @@
 #include <QTranslator>
 #include <QSurfaceFormat>
 #include <QQmlApplicationEngine>
-//#include <QPalette>
 //#include <QQuickStyle>
 
 #include "file.h"
@@ -33,11 +32,6 @@ int main(int argc, char *argv[])
     format.setSamples(8);
     QSurfaceFormat::setDefaultFormat(format);
 //QQuickStyle::setStyle("Default");
-//    QPalette palette = app.palette();
-//    palette.setColor(QPalette::Base, QColor("#31363b"));
-//    palette.setColor(QPalette::Text, QColor("#eff0f1"));
-//    palette.setColor(QPalette::Highlight, QColor("#3daee9"));
-//    app.setPalette(palette);
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

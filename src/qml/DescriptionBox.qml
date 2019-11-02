@@ -3,7 +3,6 @@ import QtQuick.Controls 2.0
 
 TextArea {
     anchors.margins: 6
-    color: colorSet.text
     wrapMode: TextEdit.NoWrap
     textFormat: Text.RichText
     readOnly: true

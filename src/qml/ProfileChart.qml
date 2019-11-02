@@ -1,10 +1,12 @@
 import QtQuick 2.0
+import QtQuick.Controls 2.5
+
 import HikeManager 1.0
 
 Item {
     id: profileChartItem
     property alias count: chart.count
-    property alias backgroundColor: background.color
+    property alias background: background
     property var tooltipsMap: ({})
     property var positionMarkersMap: ({})
     property var model: null
@@ -103,7 +105,7 @@ Item {
             id: verticalBar
             width: 1
             height: chart.height
-            color: colorSet.text
+            color: elevationLabel.color
             visible: false
         }
     }
@@ -112,7 +114,7 @@ Item {
         return chart.createSeries(track)
     }
 
-    CustomLabel {
+    Label {
         id: elevationLabel
         anchors.left: parent.left
         anchors.leftMargin: -width/2+height/2+4
@@ -141,7 +143,7 @@ Item {
                 anchors.right: parent.right
                 spacing: 1
 
-                CustomLabel {
+                Label {
                     text: Math.floor(chart.yMax-(chart.yMax-chart.yMin)*index/(elevationRepeater.count-1))
                 }
 
@@ -203,7 +205,7 @@ Item {
                     color: distanceLabel.color
                 }
 
-                CustomLabel {
+                Label {
                     id: label
                     text: ((chart.xMin+(chart.xMax-chart.xMin)*index/(distanceRepeater.count-1))/1000.0).toFixed(1)
                 }
@@ -223,7 +225,7 @@ Item {
         }
     }
 
-    CustomLabel {
+    Label {
         id: distanceLabel
         anchors.bottom: parent.bottom
         anchors.margins: 4

@@ -1,6 +1,7 @@
 import QtQuick 2.0
+import QtQuick.Controls 2.5
 
-CustomLabel {
+Label {
     padding: 4
 
     background: BackGround {}

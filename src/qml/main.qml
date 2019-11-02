@@ -29,23 +29,6 @@ ApplicationWindow {
         onTriggered: { var files = Qt.application.arguments.slice(); files.shift(); open(files) }
     }
 
-    SystemPalette {
-        id: systemPalette
-    }
-
-    QtObject {
-        id: colorSet
-        property color window: "#31363b"
-        property color text: "#eff0f1"
-        property color highlight: "#3daee9"
-//        property color window: systemPalette.window
-//        property color text: systemPalette.windowText
-//        property color highlight: systemPalette.highlight
-//        property color window: "blue"
-//        property color text: "red"
-//        property color highlight: "green"
-    }
-
     PositionSource {
         id: positionSource
         onSourceErrorChanged: {

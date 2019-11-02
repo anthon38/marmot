@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtQuick.Controls 2.5
 import QtLocation 5.13
 
 MapItemGroup {
@@ -22,7 +23,7 @@ MapItemGroup {
         coordinate: poimapItem.coordinate
         anchorPoint.x: width/2
         anchorPoint.y: height+image.height+4
-        sourceItem: CustomLabel {
+        sourceItem: Label {
             id: nameLabel
             font.pointSize: application.font.pointSize*0.90
             font.italic: true

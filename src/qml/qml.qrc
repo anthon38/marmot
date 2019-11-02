@@ -8,14 +8,11 @@
         <file>ChartTooltip.qml</file>
         <file>OpenDialog.qml</file>
         <file>WayPointItem.qml</file>
-        <file>CustomToolButton.qml</file>
         <file>RouteInfo.qml</file>
         <file>SaveAsDialog.qml</file>
         <file>AggregateStats.qml</file>
         <file>BackGround.qml</file>
         <file>PoiMapItem.qml</file>
-        <file>CustomLabel.qml</file>
-        <file>CustomTabButton.qml</file>
         <file>ProfileChart.qml</file>
         <file>EditToolBar.qml</file>
         <file>CustomButton.qml</file>

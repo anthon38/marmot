@@ -97,7 +97,6 @@ BackGround {
         anchors.top: clearButton.bottom
         anchors.bottom: parent.bottom
         anchors.margins: 0
-        color: colorSet.text
         wrapMode: TextEdit.NoWrap
         textFormat: Text.RichText
         readOnly: true
@@ -117,7 +116,8 @@ BackGround {
         width: 350
         height: 175
         antialiasing: true
-        backgroundColor: "transparent"
+        background.color: "transparent"
+        background.border.color: "transparent"
 
         model: fileModel
     }
