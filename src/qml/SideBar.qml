@@ -62,19 +62,29 @@ Drawer {
 
             ColumnLayout {
 
-                Kirigami.ActionToolBar {
-                    display: Button.IconOnly
-                    actions: [
-                        Kirigami.Action {
+                RowLayout {
+                    ToolButton {
+                        display: Button.IconOnly
+                        action: Kirigami.Action {
                             iconName: "document-open"
                             text: qsTr("Open...")
                             onTriggered: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
-                        },
-                        Kirigami.Action {
+                        }
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 500
+                        ToolTip.text: action.text
+                    }
+                    ToolButton {
+                        display: Button.IconOnly
+                        action: Kirigami.Action {
                             iconName: "document-close"
                             text: qsTr("Close all")
                             onTriggered: application.closeAllFiles()
-                        }]
+                        }
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 500
+                        ToolTip.text: action.text
+                    }
                 }
 
                 Kirigami.ScrollablePage {
