@@ -24,7 +24,6 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 RESOURCES += \
-    fonts.qrc \
     assets.qrc \
     src/qml/qml.qrc \
     translations.qrc
