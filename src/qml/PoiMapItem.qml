@@ -5,6 +5,7 @@ import QtLocation 5.13
 MapItemGroup {
     property alias text: nameLabel.text
     property alias coordinate: poimapItem.coordinate
+    property alias imageSource: image.source
 
     MapQuickItem {
         id: poimapItem

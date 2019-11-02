@@ -3,7 +3,6 @@
         <file>main.qml</file>
         <file>SideBar.qml</file>
         <file>DescriptionBox.qml</file>
-        <file>Marker.qml</file>
         <file>PolyLine.qml</file>
         <file>ChartTooltip.qml</file>
         <file>OpenDialog.qml</file>

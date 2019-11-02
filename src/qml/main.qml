@@ -228,6 +228,7 @@ ApplicationWindow {
             delegate: PoiMapItem {
                 coordinate: QtPositioning.coordinate(latitude, longitude)
                 text: name
+                imageSource: "qrc:/images/pin_blue.svg"
             }
         }
 
@@ -320,9 +321,9 @@ ApplicationWindow {
             }
             // Points of interest
             for (var j = 0; j < file.pois.length; ++j) {
-                var poi = Qt.createComponent("Marker.qml").createObject(map, {wayPoint: file.pois[j]})
+                var poi = Qt.createComponent("PoiMapItem.qml").createObject(map, {coordinate: file.pois[j].coordinate, text: file.pois[j].name})
                 poi.objectName = file.pois[j].objectName+"_marker"
-                map.addMapItem(poi)
+                map.addMapItemGroup(poi)
             }
         }
 
