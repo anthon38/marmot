@@ -143,6 +143,13 @@ Drawer {
                         }
                         searchGeocodeModel.query = text
                     }
+                    leftActions: [
+                        Kirigami.Action {
+                            iconName: "search"
+                            visible: searchInput.text !== ""
+                            onTriggered: searchInput.accepted()
+                        }
+                    ]
                     rightActions: [
                         Kirigami.Action {
                             iconName: "edit-clear"
