@@ -342,7 +342,7 @@ ApplicationWindow {
             for (var j = 0; j < file.pois.length; ++j) {
                 itemsToRemove.push(file.pois[j].objectName+"_marker")
             }
-            var items = map.mapItems
+            var items = map.children
             for (var k = 0; k < items.length; ++k) {
                 if (itemsToRemove.includes(items[k].objectName)) {
                     items[k].destroy()
