@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.3
 import QtLocation 5.13
 import QtGraphicalEffects 1.13
 import org.kde.kirigami 2.9 as Kirigami
+import HikeManager 1.0
 
 Drawer {
     id: sidebar
@@ -76,6 +77,27 @@ Drawer {
                         ToolTip.delay: 500
                         ToolTip.text: action.text
                     }
+                    Kirigami.ActionTextField {
+                        id: modelFilterField
+
+                        Layout.fillWidth: true
+
+                        font.italic: text.length === 0
+                        placeholderText: qsTr("Filter...")
+                        enabled: filesModel.count > 0
+                        rightActions: [
+                            Kirigami.Action {
+                                id: clearAction
+                                iconName: "edit-clear"
+                                visible: modelFilterField.text !== ""
+                                onTriggered: modelFilterField.text = ""
+                            }
+                        ]
+                        Connections {
+                            target: filesModel
+                            onCountChanged: if (filesModel.count == 0) clearAction.trigger()
+                        }
+                    }
                     ToolButton {
                         display: Button.IconOnly
                         action: Kirigami.Action {
@@ -98,7 +120,12 @@ Drawer {
                         id: filesList
 
                         clip: true
-                        model: filesModel
+                        model: SortFilterProxyModel {
+                            id: proxy
+                            sourceModel: filesModel
+                            filterRole: Qt.UserRole+1
+                            filter: modelFilterField.text
+                        }
                         currentIndex: -1
                         highlightMoveVelocity: -1
                         boundsBehavior: Flickable.StopAtBounds
@@ -112,19 +139,19 @@ Drawer {
                                     iconName: "document-edit"
                                     text: qsTr("Edit file")
                                     onTriggered: {
-                                        if (application.activeFile === filesModel.get(index)) {
+                                        if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
                                             application.activeFile = null
                                         } else {
-                                            application.activeFile = filesModel.get(index)
+                                            application.activeFile = filesModel.get(proxy.sourceIndex(index))
                                         }
                                     }
                                 },
                                 Kirigami.Action {
                                     iconName: "document-close"
                                     text: qsTr("Close file")
-                                    onTriggered: application.removeFile(index)
+                                    onTriggered: application.removeFile(proxy.sourceIndex(index))
                                 }]
-                            onClicked: application.fitToTrack(index)
+                            onClicked: application.fitToTrack(proxy.sourceIndex(index))
                         }
                     }
                 }

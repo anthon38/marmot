@@ -10,6 +10,7 @@
 #include "poi.h"
 #include "chart.h"
 #include "filesmodel.h"
+#include "sortfilterproxymodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<File>("HikeManager", 1, 0, "File");
     qmlRegisterType<Chart>("HikeManager", 1, 0, "Chart");
     qmlRegisterType<FilesModel>("HikeManager", 1, 0, "FilesModel");
+    qmlRegisterType<SortFilterProxyModel>("HikeManager", 1, 0, "SortFilterProxyModel");
 
     QTranslator translator;
     if (translator.load(QLocale(), QStringLiteral("hikemanager"), QStringLiteral("_"), QStringLiteral(":/translations/")))

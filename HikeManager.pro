@@ -7,6 +7,7 @@ HEADERS += \
     src/filesmodel.h \
     src/poi.h \
     src/chart.h \
+    src/sortfilterproxymodel.h \
     src/track.h
 
 SOURCES += \
@@ -15,6 +16,7 @@ SOURCES += \
     src/main.cpp \
     src/poi.cpp \
     src/chart.cpp \
+    src/sortfilterproxymodel.cpp \
     src/track.cpp
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
