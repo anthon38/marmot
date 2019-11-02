@@ -85,6 +85,7 @@ Drawer {
                         font.italic: text.length === 0
                         placeholderText: qsTr("Filter...")
                         enabled: filesModel.count > 0
+                        onTextChanged: proxy.setFilterFixedString(text)
                         rightActions: [
                             Kirigami.Action {
                                 id: clearAction
@@ -124,7 +125,6 @@ Drawer {
                             id: proxy
                             sourceModel: filesModel
                             filterRole: Qt.UserRole+1
-                            filter: modelFilterField.text
                         }
                         currentIndex: -1
                         highlightMoveVelocity: -1
