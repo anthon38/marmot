@@ -39,7 +39,7 @@ Item {
             var tooltip = Qt.createComponent("ChartTooltip.qml").createObject(profileChartItem)
             tooltipsMap[track.objectName] = tooltip
 
-            var positionMarker = Qt.createComponent("WayPointItem.qml").createObject(map)
+            var positionMarker = Qt.createComponent("WayPointItem.qml").createObject(map, {z: 3})
             positionMarker.color = track.color
             positionMarkersMap[track.objectName] = positionMarker
         }

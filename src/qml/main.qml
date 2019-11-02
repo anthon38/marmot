@@ -204,6 +204,7 @@ ApplicationWindow {
         }
 
         MapItemView {
+            z: 1
             model: routeModel
             delegate: MapRoute {
                 route: routeData
@@ -216,6 +217,7 @@ ApplicationWindow {
         }
 
         MapItemView {
+            z: 1
             model:aQuery.waypoints
             delegate: WayPointItem {
                 coordinate: modelData
@@ -224,6 +226,7 @@ ApplicationWindow {
         }
 
         MapItemView {
+            z: 11
             model: poiModel
             delegate: PoiMapItem {
                 coordinate: QtPositioning.coordinate(latitude, longitude)
@@ -235,6 +238,7 @@ ApplicationWindow {
         Instantiator {
             model: activeFile ? activeFile.tracks : null
             delegate: MapItemView {
+                z: 2
                 model: ListModel {
                     id: wpModel
                 }
@@ -272,6 +276,7 @@ ApplicationWindow {
 
     MapQuickItem {
         id: markerDescription
+        z: 12
         sourceItem: DescriptionBox {
             id: markerdbox
         }
@@ -279,6 +284,7 @@ ApplicationWindow {
 
     MapRectangle {
         id: zoneSelection
+        z: 9
         property variant region: QtPositioning.rectangle(topLeft, bottomRight)
         property var origin: Qt.point(-1, -1)
     }

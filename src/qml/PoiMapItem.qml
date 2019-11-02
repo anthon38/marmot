@@ -6,6 +6,7 @@ MapItemGroup {
     property alias text: nameLabel.text
     property alias coordinate: poimapItem.coordinate
     property alias imageSource: image.source
+    z: 10
 
     MapQuickItem {
         id: poimapItem
