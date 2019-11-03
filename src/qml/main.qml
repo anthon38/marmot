@@ -394,7 +394,7 @@ ApplicationWindow {
         anchors.top: parent.top
         x: sideBar.position*sideBar.width+6
         anchors.margins: 6
-        icon.name: "open-menu-symbolic"
+        icon.name: "application-menu"
         tooltipText: qsTr("Menu")
 
         onClicked: sideBar.opened ? sideBar.close() : sideBar.open()
