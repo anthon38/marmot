@@ -385,7 +385,7 @@ ApplicationWindow {
 
     SideBar {
         id: sideBar
-        width: 200*Kirigami.Units.devicePixelRatio
+        width: Math.round(200*Kirigami.Units.devicePixelRatio)
         height: application.height
     }
 
