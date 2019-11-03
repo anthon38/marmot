@@ -25,7 +25,7 @@ BackGround {
     ]
     transitions: [
         Transition {
-            AnchorAnimation { duration: 125 }
+            AnchorAnimation { duration: Kirigami.Units.longDuration }
         }
     ]
 

@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
+import org.kde.kirigami 2.9 as Kirigami
 
 
 ToolBar {
@@ -23,7 +24,7 @@ ToolBar {
     ]
     transitions: [
         Transition {
-            AnchorAnimation { duration: 125 }
+            AnchorAnimation { duration: Kirigami.Units.longDuration }
         }
     ]
     onStateChanged: if (state == "visible") navigateButton.forceActiveFocus()
