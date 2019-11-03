@@ -401,6 +401,17 @@ ApplicationWindow {
     }
 
     CustomButton {
+        id: osmButton
+        anchors.right: parent.right
+        anchors.bottom: plotRouteButton.top
+        anchors.margins: Kirigami.Units.largeSpacing
+        icon.name: "internet-services"
+        tooltipText: qsTr("Open in OpenStreetMap")
+
+        onClicked: Qt.openUrlExternally("https://www.openstreetmap.org/#map="+map.zoomLevel+"/"+map.center.latitude+"/"+map.center.longitude)
+    }
+
+    CustomButton {
         id: plotRouteButton
         anchors.right: parent.right
         anchors.bottom: mapTypeButton.top
