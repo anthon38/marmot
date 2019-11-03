@@ -151,6 +151,7 @@ Drawer {
                                     text: qsTr("Close file")
                                     onTriggered: application.removeFile(proxy.sourceIndex(index))
                                 }]
+                            checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
                             onClicked: application.fitToTrack(proxy.sourceIndex(index))
                         }
                     }

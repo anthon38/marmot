@@ -81,7 +81,7 @@ int FilesModel::count()
 
 File* FilesModel::get(int index)
 {
-    if (index > m_files.size()-1)
+    if (index < 0 || index > m_files.size()-1)
         return nullptr;
 
     return m_files.at(index);
