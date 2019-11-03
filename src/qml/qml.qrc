@@ -15,5 +15,6 @@
         <file>ProfileChart.qml</file>
         <file>EditToolBar.qml</file>
         <file>CustomButton.qml</file>
+        <file>CustomToolButton.qml</file>
     </qresource>
 </RCC>

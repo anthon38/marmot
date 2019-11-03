@@ -27,45 +27,36 @@ ToolBar {
             AnchorAnimation { duration: Kirigami.Units.longDuration }
         }
     ]
-    onStateChanged: if (state == "visible") navigateButton.forceActiveFocus()
 
     background: BackGround {}
 
     RowLayout {
         anchors.fill: parent
-        Button {
+        CustomToolButton {
             id: navigateButton
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Navigate the map")
+            tooltipText: qsTr("Navigate the map")
             icon.name: "transform-move"
             checked: true
             checkable: true
             autoExclusive: true
         }
-        Button {
+        CustomToolButton {
             id: deleteButton
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Delete a point")
+            tooltipText: qsTr("Delete a point")
             icon.name: "node-delete"
             checkable: true
             autoExclusive: true
         }
-        Button {
+        CustomToolButton {
             id: deleteZoneButton
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Select a zone")
+            tooltipText: qsTr("Select a zone")
             icon.name: "tool_rect_selection"
             checkable: true
             autoExclusive: true
         }
-        Button {
+        CustomToolButton {
             id: moveButton
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Move a point")
+            tooltipText: qsTr("Move a point")
             icon.name: "edit-node"
             checkable: true
             autoExclusive: true
@@ -77,21 +68,17 @@ ToolBar {
             verticalAlignment: Qt.AlignVCenter
             Layout.fillWidth: true
         }
-        Button {
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Export to GPX")
+        CustomToolButton {
+            tooltipText: qsTr("Export to GPX")
             icon.name: "document-save-as"
             onClicked: {
                 var dialog = Qt.createComponent("SaveAsDialog.qml").createObject(parent)
                 dialog.file = application.activeFile
             }
         }
-        Button {
-            ToolTip.visible: hovered
-            ToolTip.delay: 500
-            ToolTip.text: qsTr("Exit edit mode")
-            icon.name: "dialog-close"
+        CustomToolButton {
+            tooltipText: qsTr("Exit edit mode")
+            icon.name: "window-close-symbolic"
             onClicked: application.activeFile = null
         }
     }

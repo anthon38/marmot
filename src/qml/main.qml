@@ -294,7 +294,7 @@ ApplicationWindow {
         anchors {
             bottom: parent.top
             margins: Kirigami.Units.largeSpacing
-            horizontalCenter: parent.horizontalCenter
+            horizontalCenter: map.horizontalCenter
         }
         state: activeFile ? "visible" : ""
         Shortcut {
