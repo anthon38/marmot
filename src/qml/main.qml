@@ -18,8 +18,8 @@ ApplicationWindow {
 
     visible: true
     visibility: Window.Maximized
-    width: 900
-    height: 600
+    width: 450*Kirigami.Units.devicePixelRatio
+    height: 300*Kirigami.Units.devicePixelRatio
 
     Component.onCompleted: { if (Qt.application.arguments.length > 1) delayedLoading.start() }
 
@@ -385,7 +385,7 @@ ApplicationWindow {
 
     SideBar {
         id: sideBar
-        width: 400
+        width: 200*Kirigami.Units.devicePixelRatio
         height: application.height
     }
 
@@ -463,8 +463,8 @@ ApplicationWindow {
         anchors.top: map.top
         anchors.right: map.right
         anchors.margins: Kirigami.Units.largeSpacing
-        width: 400
-        height: 200
+        width: 200*Kirigami.Units.devicePixelRatio
+        height: 100*Kirigami.Units.devicePixelRatio
         visible: count > 0
 
         model: filesModel

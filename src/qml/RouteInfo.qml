@@ -113,8 +113,8 @@ BackGround {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 0
-        width: 350
-        height: 175
+        width: 200*Kirigami.Units.devicePixelRatio
+        height: 100*Kirigami.Units.devicePixelRatio
         antialiasing: true
         background.color: "transparent"
         background.border.color: "transparent"
