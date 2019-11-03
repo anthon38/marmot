@@ -18,7 +18,7 @@ Drawer {
             bottom: parent.bottom
             left: parent.right
         }
-        width: 6
+        width: 1.5*Kirigami.Units.smallSpacing
         start: Qt.point(0, 0)
         end: Qt.point(width, 0)
         gradient: Gradient {
@@ -62,7 +62,7 @@ Drawer {
             currentIndex: bar.currentIndex
 
             ColumnLayout {
-                spacing: -4
+                spacing: -Kirigami.Units.smallSpacing
 
                 RowLayout {
                     Layout.margins: Kirigami.Units.smallSpacing

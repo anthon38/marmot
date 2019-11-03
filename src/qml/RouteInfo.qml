@@ -54,7 +54,7 @@ BackGround {
         id: clearButton
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.smallSpacing
         iconSize: Kirigami.Units.gridUnit
         icon.name: "edit-clear-all-symbolic"
         tooltipText: qsTr("Clear")
@@ -68,7 +68,7 @@ BackGround {
         id: poiButton
         anchors.top: parent.top
         anchors.horizontalCenter: textInfo.horizontalCenter
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.smallSpacing
         iconSize: Kirigami.Units.gridUnit
         icon.name: "flag"
         tooltipText: qsTr("Add points of interest")
@@ -79,7 +79,7 @@ BackGround {
         id: exportButton
         anchors.top: parent.top
         anchors.right: textInfo.right
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.smallSpacing
         iconSize: Kirigami.Units.gridUnit
         icon.name: "document-save-as-symbolic"
         tooltipText: qsTr("Export to GPX")

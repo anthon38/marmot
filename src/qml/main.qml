@@ -146,7 +146,7 @@ ApplicationWindow {
             bottom: parent.bottom
             right: parent.right
             left: menuButton.left
-            leftMargin: -6
+            leftMargin: -menuButton.anchors.leftMargin
         }
 
         plugin: osmPlugin
@@ -293,7 +293,7 @@ ApplicationWindow {
         id: editToolBar
         anchors {
             bottom: parent.top
-            margins: 6
+            margins: Kirigami.Units.largeSpacing
             horizontalCenter: parent.horizontalCenter
         }
         state: activeFile ? "visible" : ""
@@ -392,8 +392,8 @@ ApplicationWindow {
     CustomButton {
         id: menuButton
         anchors.top: parent.top
-        x: sideBar.position*sideBar.width+6
-        anchors.margins: 6
+        x: sideBar.position*sideBar.width+Kirigami.Units.largeSpacing
+        anchors.margins: Kirigami.Units.largeSpacing
         icon.name: "application-menu"
         tooltipText: qsTr("Menu")
 
@@ -404,7 +404,7 @@ ApplicationWindow {
         id: plotRouteButton
         anchors.right: parent.right
         anchors.bottom: mapTypeButton.top
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.largeSpacing
         icon.name: "routeplanning"
         tooltipText: qsTr("Plot a route")
         checkable: true
@@ -416,14 +416,14 @@ ApplicationWindow {
         id: plotInfo
         anchors.right: plotRouteButton.left
         anchors.top: parent.bottom
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.largeSpacing
     }
 
     CustomButton {
         id: mapTypeButton
         anchors.right: parent.right
         anchors.bottom: fitToViewButton.top
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.largeSpacing
         text: map.activeMapType === map.supportedMapTypes[1] ? "\ud83c\udf10" : "\ud83c\udf0d"
         icon.name: "layer-visible-on"
         tooltipText: map.activeMapType === map.supportedMapTypes[1] ? qsTr("Hiking map") : qsTr("Satellite map")
@@ -445,7 +445,7 @@ ApplicationWindow {
         id: fitToViewButton
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.largeSpacing
         icon.name: "zoom-fit-selection"
         tooltipText: qsTr("Fit to view")
 
@@ -462,7 +462,7 @@ ApplicationWindow {
         id: profileChart
         anchors.top: map.top
         anchors.right: map.right
-        anchors.margins: 6
+        anchors.margins: Kirigami.Units.largeSpacing
         width: 400
         height: 200
         visible: count > 0
@@ -473,7 +473,7 @@ ApplicationWindow {
     AggregateStats {
         id: aggregateStats
         anchors.top: profileChart.bottom
-        anchors.topMargin: 6
+        anchors.topMargin: Kirigami.Units.largeSpacing
         anchors.right: profileChart.right
         visible: profileChart.visible
     }

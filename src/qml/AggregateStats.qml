@@ -1,8 +1,9 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
+import org.kde.kirigami 2.9 as Kirigami
 
 Label {
-    padding: 4
+    padding: Kirigami.Units.smallSpacing
 
     background: BackGround {}
 

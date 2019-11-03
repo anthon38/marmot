@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtLocation 5.13
+import org.kde.kirigami 2.9 as Kirigami
 
 MapItemGroup {
     property alias text: nameLabel.text
@@ -24,12 +25,12 @@ MapItemGroup {
 
         coordinate: poimapItem.coordinate
         anchorPoint.x: width/2
-        anchorPoint.y: height+image.height+4
+        anchorPoint.y: height+image.height+Kirigami.Units.smallSpacing
         sourceItem: Label {
             id: nameLabel
             font.pointSize: application.font.pointSize*0.90
             font.italic: true
-            padding: 4
+            padding: Kirigami.Units.smallSpacing
             background: BackGround {}
         }
     }
