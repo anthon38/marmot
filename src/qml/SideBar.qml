@@ -44,6 +44,7 @@ Drawer {
 
         TabBar {
             id: bar
+
             Layout.margins: Kirigami.Units.smallSpacing
             Layout.fillWidth: true
 
@@ -56,16 +57,20 @@ Drawer {
         }
 
         SwipeView {
+
             Layout.fillWidth: true
             Layout.fillHeight: true
 
             currentIndex: bar.currentIndex
 
             ColumnLayout {
-                spacing: -Kirigami.Units.smallSpacing
+                spacing: 0
 
                 RowLayout {
-                    Layout.margins: Kirigami.Units.smallSpacing
+
+                    Layout.leftMargin: Kirigami.Units.smallSpacing
+                    Layout.rightMargin: Kirigami.Units.smallSpacing
+
                     ToolButton {
                         display: Button.IconOnly
                         action: Kirigami.Action {
@@ -159,12 +164,13 @@ Drawer {
             }
 
             ColumnLayout {
-                spacing: -2
+                spacing: 0
 
                 Kirigami.ActionTextField {
                     id: searchInput
 
-                    Layout.margins: Kirigami.Units.smallSpacing
+                    Layout.leftMargin: Kirigami.Units.smallSpacing
+                    Layout.rightMargin: Kirigami.Units.smallSpacing
                     Layout.fillWidth: true
 
                     font.italic: text.length === 0
