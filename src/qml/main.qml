@@ -125,6 +125,7 @@ ApplicationWindow {
     GeocodeModel {
         id: searchGeocodeModel
         plugin: osmPlugin
+        limit: 50
         autoUpdate: true
         onStatusChanged: {
             if (status == GeocodeModel.Error) {
