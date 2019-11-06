@@ -42,6 +42,44 @@ Drawer {
         clip: true
         spacing: 0
 
+        RowLayout {
+
+            Layout.fillWidth: true
+            Layout.margins: Kirigami.Units.largeSpacing
+
+            Kirigami.Heading {
+                text: Qt.application.name
+            }
+            Item {
+                // spacer
+                Layout.fillWidth: true
+            }
+
+            CustomToolButton {
+                action: Kirigami.Action {
+                    iconName: "settings-configure"
+                    text: qsTr("Configure...")
+                    onTriggered: popup.open()
+                }
+                tooltipText: action.text
+
+                Dialog {
+                    id: popup
+
+                    parent: Overlay.overlay
+                    closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
+                    modal: true
+                    title: qsTr("Settings")
+                    standardButtons: Dialog.Ok | Dialog.Cancel
+
+                    x: Math.round((parent.width - width) / 2)
+                    y: Math.round((parent.height - height) / 2)
+
+                    SettingsPanel {}
+                }
+            }
+        }
+
         TabBar {
             id: bar
 
