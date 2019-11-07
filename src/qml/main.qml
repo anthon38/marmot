@@ -439,8 +439,9 @@ ApplicationWindow {
         anchors.margins: Kirigami.Units.largeSpacing
         icon.name: "layer-visible-on"
         tooltipText: qsTr("Layers")
+        checked: menu.visible
 
-        onClicked: menu.open()
+        onClicked: if (!menu.visible) menu.popup(-menu.width, 0)
 
         Menu {
             id: menu
@@ -449,23 +450,24 @@ ApplicationWindow {
             Repeater {
                 id: mapTypeRepeater
                 delegate: RadioButton {
+                    text: modelData.name
                     checked: map.activeMapType.name === modelData.name
-                    action: Action {
-                        text: modelData.name
-                        onTriggered: map.activeMapType = modelData
-                    }
+                    onClicked: map.activeMapType = modelData
                 }
             }
-            Component.onCompleted: {
-                var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.HybridMap, MapType.TerrainMap, MapType.CycleMap, MapType.PedestrianMap]
-                var availableMaps = []
-                for (var i = 0; i < map.supportedMapTypes.length; ++i) {
-                    var type = map.supportedMapTypes[i]
-                    if (supportedStyles.includes(type.style)) {
-                        availableMaps.push(type)
+            Connections {
+                target: map
+                onSupportedMapTypesChanged: {
+                    var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.HybridMap, MapType.PedestrianMap]
+                    var availableMaps = []
+                    for (var i = 0; i < map.supportedMapTypes.length; ++i) {
+                        var type = map.supportedMapTypes[i]
+                        if (supportedStyles.includes(type.style)) {
+                            availableMaps.push(type)
+                        }
                     }
+                    mapTypeRepeater.model = availableMaps
                 }
-                mapTypeRepeater.model = availableMaps
             }
         }
     }
