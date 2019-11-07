@@ -256,8 +256,8 @@ Drawer {
                             text: qsTr("Provider...")
                         }
                         display: Button.IconOnly
-                        onClicked: menu.open()
-
+                        checked: menu.visible
+                        onClicked: menu.visible ? menu.close() : menu.popup(width, 0)
                         Menu {
                             id: menu
                             padding: Kirigami.Units.smallSpacing
