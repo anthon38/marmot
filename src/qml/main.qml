@@ -437,19 +437,35 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: fitToViewButton.top
         anchors.margins: Kirigami.Units.largeSpacing
-        text: map.activeMapType === map.supportedMapTypes[1] ? "\ud83c\udf10" : "\ud83c\udf0d"
         icon.name: "layer-visible-on"
-        tooltipText: map.activeMapType === map.supportedMapTypes[1] ? qsTr("Hiking map") : qsTr("Satellite map")
+        tooltipText: qsTr("Layers")
 
-        onClicked: {
-            if (map.activeMapType === map.supportedMapTypes[1]) {
-                map.activeMapType = map.supportedMapTypes[6]
+        onClicked: menu.open()
+
+        Menu {
+            id: menu
+            padding: Kirigami.Units.smallSpacing
+
+            Repeater {
+                id: mapTypeRepeater
+                delegate: RadioButton {
+                    checked: map.activeMapType.name === modelData.name
+                    action: Action {
+                        text: modelData.name
+                        onTriggered: map.activeMapType = modelData
+                    }
+                }
             }
-            else if (map.activeMapType === map.supportedMapTypes[6]) {
-                map.activeMapType = map.supportedMapTypes[1]
-            }
-            else {
-                console.log(map.activeMapType)
+            Component.onCompleted: {
+                var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.HybridMap, MapType.TerrainMap, MapType.CycleMap, MapType.PedestrianMap]
+                var availableMaps = []
+                for (var i = 0; i < map.supportedMapTypes.length; ++i) {
+                    var type = map.supportedMapTypes[i]
+                    if (supportedStyles.includes(type.style)) {
+                        availableMaps.push(type)
+                    }
+                }
+                mapTypeRepeater.model = availableMaps
             }
         }
     }
