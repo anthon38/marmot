@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
 import QtGraphicalEffects 1.13
@@ -204,48 +204,83 @@ Drawer {
             ColumnLayout {
                 spacing: 0
 
-                Kirigami.ActionTextField {
-                    id: searchInput
+                RowLayout {
 
                     Layout.leftMargin: Kirigami.Units.smallSpacing
                     Layout.rightMargin: Kirigami.Units.smallSpacing
-                    Layout.fillWidth: true
 
-                    font.italic: text.length === 0
-                    placeholderText: qsTr("Search...")
-                    enabled: searchGeocodeModel.status != GeocodeModel.Loading
-                    onAccepted: {
-                        var coordinateStrings = text.split(',')
-                        if (coordinateStrings.length === 2) {
-                            var first = parseFloat(coordinateStrings[0])
-                            var second = parseFloat(coordinateStrings[1])
-                            var coordinate = QtPositioning.coordinate(first, second)
-                            if (!coordinate.isValid)
-                                coordinate = QtPositioning.coordinate(second, first)
-                            if (coordinate.isValid) {
-                                searchGeocodeModel.query = coordinate
-                                return
+                    Kirigami.ActionTextField {
+                        id: searchInput
+
+                        Layout.fillWidth: true
+
+                        font.italic: text.length === 0
+                        placeholderText: qsTr("Search...")
+                        enabled: searchGeocodeModel.status != GeocodeModel.Loading
+                        onAccepted: {
+                            var coordinateStrings = text.split(',')
+                            if (coordinateStrings.length === 2) {
+                                var first = parseFloat(coordinateStrings[0])
+                                var second = parseFloat(coordinateStrings[1])
+                                var coordinate = QtPositioning.coordinate(first, second)
+                                if (!coordinate.isValid)
+                                    coordinate = QtPositioning.coordinate(second, first)
+                                if (coordinate.isValid) {
+                                    searchGeocodeModel.query = coordinate
+                                    return
+                                }
                             }
+                            searchGeocodeModel.query = text
                         }
-                        searchGeocodeModel.query = text
+                        leftActions: [
+                            Kirigami.Action {
+                                iconName: "search"
+                                visible: searchInput.text !== ""
+                                onTriggered: searchInput.accepted()
+                            }
+                        ]
+                        rightActions: [
+                            Kirigami.Action {
+                                iconName: "edit-clear"
+                                visible: searchInput.text !== ""
+                                onTriggered: {
+                                    searchInput.text = ""
+                                    searchInput.accepted()
+                                }
+                            }
+                        ]
                     }
-                    leftActions: [
-                        Kirigami.Action {
-                            iconName: "search"
-                            visible: searchInput.text !== ""
-                            onTriggered: searchInput.accepted()
+                    ToolButton {
+                        action: Action {
+                            icon.name: "internet-services"
+                            text: qsTr("Provider...")
                         }
-                    ]
-                    rightActions: [
-                        Kirigami.Action {
-                            iconName: "edit-clear"
-                            visible: searchInput.text !== ""
-                            onTriggered: {
-                                searchInput.text = ""
-                                searchInput.accepted()
+                        display: Button.IconOnly
+                        onClicked: menu.open()
+
+                        Menu {
+                            id: menu
+                            padding: Kirigami.Units.smallSpacing
+
+                            RadioButton {
+                                checked: searchGeocodeModel.plugin == osmPlugin
+                                action: Action {
+                                    text: "Nominatim"
+                                    onTriggered: searchGeocodeModel.plugin = osmPlugin
+                                }
+                            }
+                            RadioButton {
+                                checked: searchGeocodeModel.plugin == orsPlugin
+                                action: Action {
+                                    text: "OpenRouteService"
+                                    onTriggered: searchGeocodeModel.plugin = orsPlugin
+                                }
                             }
                         }
-                    ]
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 500
+                        ToolTip.text: action.text
+                    }
                 }
 
                 Kirigami.ScrollablePage {

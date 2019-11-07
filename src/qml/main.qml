@@ -64,6 +64,7 @@ ApplicationWindow {
         id: orsPlugin
         name: "ors"
         PluginParameter { name: "ors.api_key"; value: "5b3ce3597851110001cf624889cac8de7d414405b9394e02dd629d89" }
+        PluginParameter { name: "ors.search.sources"; value: "osm" }
     }
 
     RouteQuery {
