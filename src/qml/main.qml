@@ -52,6 +52,7 @@ ApplicationWindow {
         id: osmPlugin
         name: "osm"
         PluginParameter { name: "osm.mapping.providersrepository.address"; value: "qrc:/providers/" }
+        PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
 
 //    Plugin {
@@ -114,7 +115,11 @@ ApplicationWindow {
         }
         onLocationsChanged: {
             if (count == 1) {
-                poiModel.append({"name": get(0).extendedAttributes.name, "latitude": query.latitude, "longitude": query.longitude})
+                var name = get(0).address.text
+                // Use short name if available
+                if (get(0).extendedAttributes.name)
+                    name = get(0).extendedAttributes.name
+                poiModel.append({"name": name, "latitude": query.latitude, "longitude": query.longitude})
             }
         }
     }
