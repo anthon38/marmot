@@ -1,8 +1,7 @@
 {
-    "UrlTemplate" : "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/256/%z/%x/%y?access_token=pk.eyJ1IjoiYW50aG9uIiwiYSI6ImNqMHZiM2J0ZzAwMDMycXA5bWt2c3ZjMDEifQ.0WvBBN2EmC9Jf2gY3pHfsA",
+    "UrlTemplate" : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/%z/%y/%x",
     "ImageFormat" : "png",
-    "MaximumZoomLevel" : 22,
-    "MapCopyRight" : "<a href='https://www.mapbox.com/map-feedback/'>© Mapbox</a>",
-    "DataCopyRight" : "<a href='http://www.openstreetmap.org/copyright'>© OpenStreetMap</a>",
-    "StyleCopyRight" : "<a href='https://www.mapbox.com/map-feedback/'><strong>Improve this map</strong>"
+    "MaximumZoomLevel" : 19,
+    "MapCopyRight" : "<a href='http://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9'>Esri</a> contributors",
+    "DataCopyRight" : "Esri, DigitalGlobe, Earthstar Geographics, CNES/Airbus DS, GeoEye, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
 }
