@@ -1,0 +1,7 @@
+{
+    "UrlTemplate" : "https://tile.opentopomap.org/%z/%x/%y.png",
+    "ImageFormat" : "png",
+    "MaximumZoomLevel" : 20,
+    "MapCopyRight" : "<a href='https://opentopomap.org/'>OpenTopoMap</a> (<a href='https://creativecommons.org/licenses/by-sa/3.0/'>CC-BY-SA</a>)",
+    "DataCopyRight" : "<a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>-Mitwirkende, SRTM"
+}

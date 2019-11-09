@@ -3,6 +3,7 @@
         <file>images/hm-icon.svg</file>
         <file>providers/hiking</file>
         <file>providers/satellite</file>
+        <file>providers/terrain</file>
         <file>images/pin_blue.svg</file>
         <file>images/pin_red.svg</file>
     </qresource>

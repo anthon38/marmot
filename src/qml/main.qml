@@ -463,7 +463,7 @@ ApplicationWindow {
             Connections {
                 target: map
                 onSupportedMapTypesChanged: {
-                    var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.HybridMap, MapType.PedestrianMap]
+                    var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.TerrainMap, MapType.PedestrianMap]
                     var availableMaps = []
                     for (var i = 0; i < map.supportedMapTypes.length; ++i) {
                         var type = map.supportedMapTypes[i]
