@@ -55,12 +55,6 @@ ApplicationWindow {
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
 
-//    Plugin {
-//        id: graphhopperPlugin
-//        name: "graphhopper"
-//        PluginParameter { name: "graphhopper.api_key"; value: "6a9427f8-f0c9-49a3-b5d7-9a1a4ffe8cd1" }
-//    }
-
     Plugin {
         id: orsPlugin
         name: "ors"
