@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>translations/hikemanager_fr.qm</file>
+        <file>translations/marmot_fr.qm</file>
     </qresource>
 </RCC>

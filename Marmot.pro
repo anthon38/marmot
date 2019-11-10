@@ -1,4 +1,4 @@
-TARGET = hikemanager
+TARGET = marmot
 QT += qml quick positioning quickcontrols2 widgets
 CONFIG += c++11
 
@@ -32,5 +32,5 @@ RESOURCES += \
 
 lupdate_only{
     SOURCES += src/qml/*.qml
-    TRANSLATIONS = translations/hikemanager_fr.ts
+    TRANSLATIONS = translations/marmot_fr.ts
 }

@@ -26,7 +26,7 @@ import QtQuick.Layouts 1.3
 import QtQml 2.13
 import org.kde.kirigami 2.9 as Kirigami
 
-import HikeManager 1.0
+import Marmot 1.0
 
 ApplicationWindow {
     id: application
@@ -376,7 +376,7 @@ ApplicationWindow {
         if (files.length === 0)
             return
         for (var i = 0; i < files.length; ++i) {
-            var f = Qt.createQmlObject('import HikeManager 1.0; File {}', filesModel)
+            var f = Qt.createQmlObject('import Marmot 1.0; File {}', filesModel)
             if (f.open(files[i].toString())) {
                 filesModel.append(f)
             } else {

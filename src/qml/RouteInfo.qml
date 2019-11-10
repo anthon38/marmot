@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import org.kde.kirigami 2.9 as Kirigami
 
-import HikeManager 1.0
+import Marmot 1.0
 
 BackGround {
     id: routeInfoItem
@@ -53,7 +53,7 @@ BackGround {
     }
 
     Component.onCompleted: {
-        file = Qt.createQmlObject('import HikeManager 1.0; File {}', routeInfoItem)
+        file = Qt.createQmlObject('import Marmot 1.0; File {}', routeInfoItem)
         file.addTrack()
 //        file.tracks[0].color = "blue"
         fileModel.append(file)

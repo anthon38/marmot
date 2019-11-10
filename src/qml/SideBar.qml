@@ -23,7 +23,7 @@ import QtQuick.Layouts 1.3
 import QtLocation 5.13
 import QtGraphicalEffects 1.13
 import org.kde.kirigami 2.9 as Kirigami
-import HikeManager 1.0
+import Marmot 1.0
 
 Drawer {
     id: sidebar

@@ -35,18 +35,18 @@ int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setOrganizationName(QStringLiteral("avital"));
-    QCoreApplication::setApplicationName(QStringLiteral("HikeManager"));
+    QCoreApplication::setApplicationName(QStringLiteral("Marmot"));
     QCoreApplication::setApplicationVersion(QStringLiteral("1.0"));
 
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(QStringLiteral(":/images/hm-icon.svg")));
-    qmlRegisterType<File>("HikeManager", 1, 0, "File");
-    qmlRegisterType<Chart>("HikeManager", 1, 0, "Chart");
-    qmlRegisterType<FilesModel>("HikeManager", 1, 0, "FilesModel");
-    qmlRegisterType<SortFilterProxyModel>("HikeManager", 1, 0, "SortFilterProxyModel");
+    app.setWindowIcon(QIcon(QStringLiteral(":/images/marmot.svg")));
+    qmlRegisterType<File>("Marmot", 1, 0, "File");
+    qmlRegisterType<Chart>("Marmot", 1, 0, "Chart");
+    qmlRegisterType<FilesModel>("Marmot", 1, 0, "FilesModel");
+    qmlRegisterType<SortFilterProxyModel>("Marmot", 1, 0, "SortFilterProxyModel");
 
     QTranslator translator;
-    if (translator.load(QLocale(), QStringLiteral("hikemanager"), QStringLiteral("_"), QStringLiteral(":/translations/")))
+    if (translator.load(QLocale(), QStringLiteral("marmot"), QStringLiteral("_"), QStringLiteral(":/translations/")))
         app.installTranslator(&translator);
 
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
