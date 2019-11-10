@@ -19,14 +19,41 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.13
+import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.1
+import Qt.labs.settings 1.0
 
 Item {
-    implicitWidth: label.implicitWidth
-    implicitHeight: label.implicitHeight
+    implicitWidth: mainLayout.width
+    implicitHeight: mainLayout.height
 
-    Label {
-        id: label
-        anchors.fill: parent
-        text: "Lorem ipsum..."
+    Settings {
+        property alias tilesUseEmbedded: tilesembeddedButton.checked
+        property alias tilesUseStdPath: tilesstdpathButton.checked
+    }
+
+    ColumnLayout {
+        id: mainLayout
+
+        RowLayout {
+            Layout.fillWidth: true
+            Label {
+                Layout.alignment: Qt.AlignTop
+                text: qsTr("Tile providers: ")
+            }
+            Column {
+                id: tilesColumn
+                RadioButton {
+                    id: tilesembeddedButton
+                    checked: true
+                    text: qsTr("Embedded in %1").arg(Qt.application.name)
+                }
+                RadioButton {
+                    id: tilesstdpathButton
+                    text: qsTr("Configuration folder (%1)").arg(StandardPaths.writableLocation(StandardPaths.AppConfigLocation)+"/providers/")
+                }
+            }
+        }
+
     }
 }

@@ -24,6 +24,8 @@ import QtPositioning 5.5
 import QtLocation 5.13
 import QtQuick.Layouts 1.3
 import QtQml 2.13
+import Qt.labs.platform 1.1 as Platform
+import Qt.labs.settings 1.0
 import org.kde.kirigami 2.9 as Kirigami
 
 import Marmot 1.0
@@ -39,6 +41,12 @@ ApplicationWindow {
     visibility: Window.Maximized
     width: 450*Kirigami.Units.devicePixelRatio
     height: 300*Kirigami.Units.devicePixelRatio
+
+    Settings {
+        id: settings
+        property bool tilesUseEmbedded
+        property bool tilesUseStdPath
+    }
 
     Component.onCompleted: { if (Qt.application.arguments.length > 1) delayedLoading.start() }
 
@@ -70,7 +78,12 @@ ApplicationWindow {
     Plugin {
         id: osmPlugin
         name: "osm"
-        PluginParameter { name: "osm.mapping.providersrepository.address"; value: "qrc:/providers/" }
+        PluginParameter {
+            name: "osm.mapping.providersrepository.address"
+            value: settings.tilesUseEmbedded ? "qrc:/providers/"
+                 :  settings.tilesUseStdPath ? Platform.StandardPaths.writableLocation(Platform.StandardPaths.AppConfigLocation)+"/providers/"
+                 : ""
+        }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
 
