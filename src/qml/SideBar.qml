@@ -155,7 +155,7 @@ Drawer {
                                 id: clearAction
                                 iconName: "edit-clear"
                                 visible: modelFilterField.text !== ""
-                                onTriggered: modelFilterField.text = ""
+                                onTriggered: modelFilterField.clear()
                             }
                         ]
                         Connections {
@@ -265,7 +265,7 @@ Drawer {
                                 iconName: "edit-clear"
                                 visible: searchInput.text !== ""
                                 onTriggered: {
-                                    searchInput.text = ""
+                                    searchInput.clear()
                                     searchInput.accepted()
                                 }
                             }
