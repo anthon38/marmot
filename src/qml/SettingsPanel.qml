@@ -28,8 +28,20 @@ Item {
     implicitHeight: mainLayout.height
 
     Settings {
-        property alias tilesUseEmbedded: tilesembeddedButton.checked
-        property alias tilesUseStdPath: tilesstdpathButton.checked
+        id: settings
+        property bool tilesUseEmbedded: true
+        property bool tilesUseStdPath: false
+    }
+
+    function saveSettings() {
+        settings.tilesUseEmbedded = tilesembeddedButton.checked
+        settings.tilesUseStdPath = tilesstdpathButton.checked
+    }
+
+    Component.onCompleted: {
+        // load settings
+        tilesembeddedButton.checked = settings.tilesUseEmbedded
+        tilesstdpathButton.checked = settings.tilesUseStdPath
     }
 
     ColumnLayout {
@@ -45,7 +57,6 @@ Item {
                 id: tilesColumn
                 RadioButton {
                     id: tilesembeddedButton
-                    checked: true
                     text: qsTr("Embedded in %1").arg(Qt.application.name)
                 }
                 RadioButton {
