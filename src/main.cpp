@@ -22,11 +22,8 @@
 #include <QTranslator>
 #include <QSurfaceFormat>
 #include <QQmlApplicationEngine>
-//#include <QQuickStyle>
 
 #include "file.h"
-#include "track.h"
-#include "poi.h"
 #include "chart.h"
 #include "filesmodel.h"
 #include "sortfilterproxymodel.h"
@@ -56,7 +53,6 @@ int main(int argc, char *argv[])
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSamples(8);
     QSurfaceFormat::setDefaultFormat(format);
-//QQuickStyle::setStyle("Default");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
