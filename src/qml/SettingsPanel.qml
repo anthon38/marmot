@@ -29,19 +29,19 @@ Item {
 
     Settings {
         id: settings
-        property bool tilesUseEmbedded: true
-        property bool tilesUseStdPath: false
+        property bool providersUseEmbedded: true
+        property bool providersUseStdPath: false
     }
 
     function saveSettings() {
-        settings.tilesUseEmbedded = tilesembeddedButton.checked
-        settings.tilesUseStdPath = tilesstdpathButton.checked
+        settings.providersUseEmbedded = tilesembeddedButton.checked
+        settings.providersUseStdPath = tilesstdpathButton.checked
     }
 
     Component.onCompleted: {
         // load settings
-        tilesembeddedButton.checked = settings.tilesUseEmbedded
-        tilesstdpathButton.checked = settings.tilesUseStdPath
+        tilesembeddedButton.checked = settings.providersUseEmbedded
+        tilesstdpathButton.checked = settings.providersUseStdPath
     }
 
     ColumnLayout {

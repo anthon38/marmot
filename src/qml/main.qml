@@ -44,8 +44,8 @@ ApplicationWindow {
 
     Settings {
         id: settings
-        property bool tilesUseEmbedded
-        property bool tilesUseStdPath
+        property bool providersUseEmbedded
+        property bool providersUseStdPath
     }
 
     Component.onCompleted: { if (Qt.application.arguments.length > 1) delayedLoading.start() }
@@ -80,8 +80,8 @@ ApplicationWindow {
         name: "osm"
         PluginParameter {
             name: "osm.mapping.providersrepository.address"
-            value: settings.tilesUseEmbedded ? "qrc:/providers/"
-                 :  settings.tilesUseStdPath ? Platform.StandardPaths.writableLocation(Platform.StandardPaths.AppConfigLocation)+"/providers/"
+            value: settings.providersUseEmbedded ? "qrc:/providers/"
+                 :  settings.providersUseStdPath ? Platform.StandardPaths.writableLocation(Platform.StandardPaths.AppConfigLocation)+"/providers/"
                  : ""
         }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
