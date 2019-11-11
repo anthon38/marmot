@@ -21,6 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
+import org.kde.kirigami 2.9 as Kirigami
 
 import Marmot 1.0
 
@@ -50,15 +51,28 @@ Item {
             }
             Column {
                 id: tilesColumn
+                ButtonGroup {
+                    id: providersButtonGroup
+                    onClicked: restartMessage.visible = true
+                }
                 RadioButton {
                     id: tilesembeddedButton
                     text: qsTr("Embedded in %1").arg(Qt.application.name)
+                    ButtonGroup.group: providersButtonGroup
                 }
                 RadioButton {
                     id: tilesstdpathButton
                     text: qsTr("Configuration folder (%1)").arg(StandardPaths.writableLocation(StandardPaths.AppConfigLocation)+"/providers/")
+                    ButtonGroup.group: providersButtonGroup
                 }
             }
+        }
+
+        Kirigami.InlineMessage {
+            id: restartMessage
+            Layout.fillWidth: true
+            visible: false
+            text: qsTr("%1 has to be restarted for these changes to take effect.").arg(Qt.application.name)
         }
 
     }
