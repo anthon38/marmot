@@ -30,6 +30,7 @@
 #include "chart.h"
 #include "filesmodel.h"
 #include "sortfilterproxymodel.h"
+#include "settings.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,6 +45,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Chart>("Marmot", 1, 0, "Chart");
     qmlRegisterType<FilesModel>("Marmot", 1, 0, "FilesModel");
     qmlRegisterType<SortFilterProxyModel>("Marmot", 1, 0, "SortFilterProxyModel");
+    qmlRegisterSingletonType<Settings>("Marmot", 1, 0, "Settings", &Settings::qmlInstance);
 
     QTranslator translator;
     if (translator.load(QLocale(), QStringLiteral("marmot"), QStringLiteral("_"), QStringLiteral(":/translations/")))

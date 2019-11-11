@@ -17,49 +17,31 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Controls 2.13
-import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1
+#include "settings.h"
 
-import Marmot 1.0
+Settings::Settings(QObject *parent) : QObject(parent)
+{
+    m_settings = new QSettings(this);
+}
 
-Item {
-    implicitWidth: mainLayout.width
-    implicitHeight: mainLayout.height
+QVariant Settings::booleanValue(const QString &key, const QVariant &defaultValue) const
+{
+    // This is a workaround. It seems impossible to force a conversion from
+    // variant to bool in QML without explicitly calling toBool() on the C++ side.
+    return m_settings->value(key, defaultValue).toBool();
+}
 
-    function saveSettings() {
-        Settings.setValue("providersUseEmbedded", tilesembeddedButton.checked)
-        Settings.setValue("providersUseStdPath", tilesstdpathButton.checked)
-    }
+QVariant Settings::value(const QString &key, const QVariant &defaultValue) const
+{
+    return m_settings->value(key, defaultValue);
+}
 
-    Component.onCompleted: {
-        // load settings
-        tilesembeddedButton.checked = Settings.booleanValue("providersUseEmbedded", true)
-        tilesstdpathButton.checked = Settings.booleanValue("providersUseStdPath", false)
-    }
+void Settings::setValue(const QString &key, const QVariant &value)
+{
+    m_settings->setValue(key, value);
+}
 
-    ColumnLayout {
-        id: mainLayout
-
-        RowLayout {
-            Layout.fillWidth: true
-            Label {
-                Layout.alignment: Qt.AlignTop
-                text: qsTr("Tile providers: ")
-            }
-            Column {
-                id: tilesColumn
-                RadioButton {
-                    id: tilesembeddedButton
-                    text: qsTr("Embedded in %1").arg(Qt.application.name)
-                }
-                RadioButton {
-                    id: tilesstdpathButton
-                    text: qsTr("Configuration folder (%1)").arg(StandardPaths.writableLocation(StandardPaths.AppConfigLocation)+"/providers/")
-                }
-            }
-        }
-
-    }
+bool Settings::contains(const QString &key) const
+{
+    return m_settings->contains(key);
 }

@@ -17,49 +17,33 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Controls 2.13
-import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-import Marmot 1.0
+#include <QObject>
+#include <QSettings>
+#include <QQmlEngine>
 
-Item {
-    implicitWidth: mainLayout.width
-    implicitHeight: mainLayout.height
+class Settings : public QObject
+{
+    Q_OBJECT
+public:
+    static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
+    {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
 
-    function saveSettings() {
-        Settings.setValue("providersUseEmbedded", tilesembeddedButton.checked)
-        Settings.setValue("providersUseStdPath", tilesstdpathButton.checked)
+        return new Settings();
     }
 
-    Component.onCompleted: {
-        // load settings
-        tilesembeddedButton.checked = Settings.booleanValue("providersUseEmbedded", true)
-        tilesstdpathButton.checked = Settings.booleanValue("providersUseStdPath", false)
-    }
+    explicit Settings(QObject *parent = nullptr);
+    Q_INVOKABLE QVariant booleanValue(const QString &key, const QVariant &defaultValue = QVariant()) const;
+    Q_INVOKABLE QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+    Q_INVOKABLE void setValue(const QString &key, const QVariant &value);
+    Q_INVOKABLE bool contains(const QString &key) const;
 
-    ColumnLayout {
-        id: mainLayout
+private:
+    QSettings* m_settings;
+};
 
-        RowLayout {
-            Layout.fillWidth: true
-            Label {
-                Layout.alignment: Qt.AlignTop
-                text: qsTr("Tile providers: ")
-            }
-            Column {
-                id: tilesColumn
-                RadioButton {
-                    id: tilesembeddedButton
-                    text: qsTr("Embedded in %1").arg(Qt.application.name)
-                }
-                RadioButton {
-                    id: tilesstdpathButton
-                    text: qsTr("Configuration folder (%1)").arg(StandardPaths.writableLocation(StandardPaths.AppConfigLocation)+"/providers/")
-                }
-            }
-        }
-
-    }
-}
+#endif // SETTINGS_H

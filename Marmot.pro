@@ -7,6 +7,7 @@ HEADERS += \
     src/filesmodel.h \
     src/poi.h \
     src/chart.h \
+    src/settings.h \
     src/sortfilterproxymodel.h \
     src/track.h
 
@@ -16,6 +17,7 @@ SOURCES += \
     src/main.cpp \
     src/poi.cpp \
     src/chart.cpp \
+    src/settings.cpp \
     src/sortfilterproxymodel.cpp \
     src/track.cpp
 
