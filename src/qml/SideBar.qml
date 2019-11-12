@@ -184,16 +184,12 @@ Drawer {
                     ListView {
                         id: filesList
 
-                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
                         model: SortFilterProxyModel {
                             id: proxy
                             sourceModel: filesModel
                             filterRole: Qt.UserRole+1
                         }
-                        currentIndex: -1
-                        highlightMoveVelocity: -1
-                        boundsBehavior: Flickable.StopAtBounds
-
                         delegate: Kirigami.SwipeListItem {
                             contentItem: Label {
                                 text: name
@@ -312,12 +308,8 @@ Drawer {
                     ListView {
                         id: searchResultsList
 
-                        clip: true
-                        model: searchModel
-                        currentIndex: -1
-                        highlightMoveVelocity: -1
                         boundsBehavior: Flickable.StopAtBounds
-
+                        model: searchModel
                         delegate: Kirigami.BasicListItem {
                             reserveSpaceForIcon: false
                             label: address
