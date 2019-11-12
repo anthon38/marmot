@@ -67,11 +67,8 @@ Drawer {
             Layout.margins: Kirigami.Units.largeSpacing
 
             Kirigami.Heading {
-                text: Qt.application.name
-            }
-            Item {
-                // spacer
                 Layout.fillWidth: true
+                text: Qt.application.name
             }
 
             CustomToolButton {
