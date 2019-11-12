@@ -184,7 +184,7 @@ ApplicationWindow {
                          ? Qt.BusyCursor : Qt.ArrowCursor
             enabled: (routeModel.status != RouteModel.Loading) && (poiGeocodeModel.status != GeocodeModel.Loading)
             onClicked: {
-                map.removeMapItem(markerDescription)
+                map.removeMapItem(trackInfoMapItem)
                 if (plotRouteButton.checked) {
                     if (mouse.button == Qt.LeftButton) {
                         if (plotInfo.isAddingPoi) {
@@ -297,10 +297,13 @@ ApplicationWindow {
     }
 
     MapQuickItem {
-        id: markerDescription
+        id: trackInfoMapItem
         z: 12
-        sourceItem: DescriptionBox {
-            id: markerdbox
+        sourceItem: TextArea {
+            id: trackInfoItem
+            wrapMode: TextEdit.NoWrap
+            textFormat: Text.RichText
+            background: BackGround {}
         }
     }
 
@@ -338,7 +341,7 @@ ApplicationWindow {
         id: filesModel
 
         onFileAppened: {
-            map.removeMapItem(markerDescription)
+            map.removeMapItem(trackInfoMapItem)
             // PolyLines
             for (var i = 0; i < file.tracks.length; ++i) {
                 var polyLine = Qt.createComponent("PolyLine.qml").createObject(map, {track: file.tracks[i]})
@@ -356,7 +359,7 @@ ApplicationWindow {
         }
 
         onFileRemoved: {
-            map.removeMapItem(markerDescription)
+            map.removeMapItem(trackInfoMapItem)
             var itemsToRemove = []
             for (var i = 0; i < file.tracks.length; ++i) {
                 itemsToRemove.push(file.tracks[i].objectName+"_polyline")
