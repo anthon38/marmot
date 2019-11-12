@@ -19,8 +19,6 @@
 
 #include "utils.h"
 
-#include <QStandardPaths>
-
 Utils::Utils(QObject *parent) : QObject(parent)
 {
 
@@ -34,7 +32,7 @@ QString Utils::prettyUrl(QUrl url) const
     return url.toString();
 }
 
-QUrl Utils::appConfigLocation() const
+QUrl Utils::location(QStandardPaths::StandardLocation standardLocation) const
 {
-    return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
+    return QUrl::fromLocalFile(QStandardPaths::writableLocation(standardLocation));
 }

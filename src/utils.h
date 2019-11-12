@@ -22,10 +22,12 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QStandardPaths>
 
 class Utils : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(QStandardPaths::StandardLocation)
 public:
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
     {
@@ -34,9 +36,10 @@ public:
 
         return new Utils();
     }
+
     explicit Utils(QObject *parent = nullptr);
     Q_INVOKABLE QString prettyUrl(QUrl url) const;
-    Q_INVOKABLE QUrl appConfigLocation() const;
+    Q_INVOKABLE QUrl location(QStandardPaths::StandardLocation standardLocation) const;
 };
 
 #endif // UTILS_H

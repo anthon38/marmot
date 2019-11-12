@@ -61,7 +61,7 @@ Item {
                 }
                 RadioButton {
                     id: tilesstdpathButton
-                    text: qsTr("Configuration directory (%1)").arg(Utils.prettyUrl(Utils.appConfigLocation()+"/providers/"))
+                    text: qsTr("Configuration directory (%1)").arg(Utils.prettyUrl(Utils.location(Utils.AppConfigLocation)+"/providers/"))
                     ButtonGroup.group: providersButtonGroup
                 }
             }

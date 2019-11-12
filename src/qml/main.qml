@@ -71,7 +71,7 @@ ApplicationWindow {
         name: "osm"
         PluginParameter {
             name: "osm.mapping.providersrepository.address"
-            value: Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Utils.appConfigLocation()+"/providers/"
+            value: Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Utils.location(Utils.AppConfigLocation)+"/providers/"
         }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
