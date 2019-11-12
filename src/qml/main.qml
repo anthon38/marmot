@@ -33,7 +33,6 @@ ApplicationWindow {
     id: application
 
     property var currentLocation: QtPositioning.coordinate(45.187778, 5.726945) //G-Town
-    property var activeTrack: null
     property var activeFile: null
 
     visible: true
