@@ -20,7 +20,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1
 import org.kde.kirigami 2.9 as Kirigami
 
 import Marmot 1.0
@@ -62,7 +61,7 @@ Item {
                 }
                 RadioButton {
                     id: tilesstdpathButton
-                    text: qsTr("Configuration folder (%1)").arg(Utils.prettyUrl(StandardPaths.writableLocation(StandardPaths.AppConfigLocation)+"/providers/"))
+                    text: qsTr("Configuration directory (%1)").arg(Utils.prettyUrl(Utils.appConfigLocation()+"/providers/"))
                     ButtonGroup.group: providersButtonGroup
                 }
             }

@@ -24,7 +24,6 @@ import QtPositioning 5.5
 import QtLocation 5.13
 import QtQuick.Layouts 1.3
 import QtQml 2.13
-import Qt.labs.platform 1.1 as Platform
 import org.kde.kirigami 2.9 as Kirigami
 
 import Marmot 1.0
@@ -72,7 +71,7 @@ ApplicationWindow {
         name: "osm"
         PluginParameter {
             name: "osm.mapping.providersrepository.address"
-            value: Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Platform.StandardPaths.writableLocation(Platform.StandardPaths.AppConfigLocation)+"/providers/"
+            value: Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Utils.appConfigLocation()+"/providers/"
         }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }

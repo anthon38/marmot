@@ -36,6 +36,7 @@ public:
     }
     explicit Utils(QObject *parent = nullptr);
     Q_INVOKABLE QString prettyUrl(QUrl url) const;
+    Q_INVOKABLE QUrl appConfigLocation() const;
 };
 
 #endif // UTILS_H
