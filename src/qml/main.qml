@@ -310,7 +310,7 @@ ApplicationWindow {
     MapRectangle {
         id: zoneSelection
         z: 9
-        property variant region: QtPositioning.rectangle(topLeft, bottomRight)
+        property var region: QtPositioning.rectangle(topLeft, bottomRight)
         property var origin: Qt.point(-1, -1)
     }
 
