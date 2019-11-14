@@ -72,7 +72,6 @@ void Chart::createSeries(Track *track)
     });
     m_trackList.append(track);
     updateExtrema();
-    Q_EMIT(extremaChanged());
     Q_EMIT(countChanged());
     Q_EMIT(trackAdded(track));
 }
