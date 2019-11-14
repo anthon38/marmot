@@ -46,14 +46,8 @@ Item {
         anchors.right: distanceRow.right
         anchors.rightMargin: distanceRow.lastItemWidth/2
         clip: true
-        xMax: (model.xMax < 1000.0) ? 1000.0 : model.xMax
-        yMin: model.yMin*0.95
-        yMax: (model.yMax < 10.0) ? 10.0 : model.yMax*1.05
 
-        onXMinChanged: distanceRow.updateValues()
-        onXMaxChanged: distanceRow.updateValues()
-        onYMinChanged: distanceRow.updateValues()
-        onYMaxChanged: distanceRow.updateValues()
+        onExtremaChanged: distanceRow.updateValues()
 
         onTrackAdded: {
             var tooltip = Qt.createComponent("ChartTooltip.qml").createObject(profileChartItem)

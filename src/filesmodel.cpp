@@ -23,10 +23,6 @@
 
 FilesModel::FilesModel(QObject *parent)
     : QAbstractListModel(parent)
-    , m_xMin(0.0)
-    , m_xMax(0.0)
-    , m_yMin(0.0)
-    , m_yMax(0.0)
 {
 
     m_trackColors << QRgb(0x209fdf);
@@ -119,20 +115,7 @@ void FilesModel::append(File* file)
         int key = createUniqueKey(m_trackMap.values());
         track->setObjectName(QStringLiteral("track_")+QString::number(key));
         track->setColor(m_trackColors.at(key%m_trackColors.length()));
-
-        if (m_trackMap.isEmpty()) {
-            m_xMax = track->distance2D();
-            m_yMin = track->altitudeMin();
-            m_yMax = track->altitudeMax();
-        } else {
-            m_xMax = qMax(m_xMax, track->distance2D());
-            m_yMin = qMin(m_yMin, track->altitudeMin());
-            m_yMax = qMax(m_yMax, track->altitudeMax());
-        }
-        connect(track, &Track::pathChanged, this, &FilesModel::updateExtrema);
-
         m_trackMap.insert(track,key);
-        Q_EMIT(extremaChanged());
     }
     QObjectList pois = file->pois();
     for (auto p : pois) {
@@ -162,8 +145,6 @@ void FilesModel::remove(int index)
     for (auto t : tracks) {
         Track* track = static_cast<Track*>(t);
         m_trackMap.remove(track);
-
-        updateExtrema();
     }
 
     m_files.remove(index);
@@ -186,27 +167,4 @@ int FilesModel::createUniqueKey(QList<int> keys) const
         ++it;
     }
     return key;
-}
-
-void FilesModel::updateExtrema()
-{
-    if (m_trackMap.isEmpty()) {
-        m_xMax = 0.0;
-        m_yMin = 0.0;
-        m_yMax = 0.0;
-    } else {
-        for (auto t = m_trackMap.keyBegin(); t != m_trackMap.keyEnd(); ++t) {
-            Track *track = *t;
-            if (t == m_trackMap.keyBegin()) {
-                m_xMax = track->distance2D();
-                m_yMin = track->altitudeMin();
-                m_yMax = track->altitudeMax();
-            } else {
-                m_xMax = qMax(m_xMax, track->distance2D());
-                m_yMin = qMin(m_yMin, track->altitudeMin());
-                m_yMax = qMax(m_yMax, track->altitudeMax());
-            }
-        }
-    }
-    Q_EMIT(extremaChanged());
 }

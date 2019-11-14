@@ -22,44 +22,20 @@
 #include <QPainterPath>
 #include <QPainter>
 
+#define DEFAULT_XMAX 1000.0
+#define DEFAULT_YMAX 10.0
+
 Chart::Chart(QQuickItem *parent)
     : QQuickPaintedItem(parent)
     , m_xMin(0.0)
-    , m_xMax(1000.0)
+    , m_xMax(DEFAULT_XMAX)
     , m_yMin(0.0)
-    , m_yMax(1.0)
+    , m_yMax(DEFAULT_YMAX)
 {
     setFlag(ItemHasContents, true);
 
     connect(this, &Chart::countChanged, this, &QQuickItem::update);
-    connect(this, &Chart::xMinChanged, this, &QQuickItem::update);
-    connect(this, &Chart::xMaxChanged, this, &QQuickItem::update);
-    connect(this, &Chart::yMinChanged, this, &QQuickItem::update);
-    connect(this, &Chart::yMaxChanged, this, &QQuickItem::update);
-}
-
-void Chart::setXmin(qreal xMin)
-{
-    m_xMin = xMin;
-    Q_EMIT(xMinChanged());
-}
-
-void Chart::setXmax(qreal xMax)
-{
-    m_xMax = xMax;
-    Q_EMIT(xMaxChanged());
-}
-
-void Chart::setYmin(qreal yMin)
-{
-    m_yMin = yMin;
-    Q_EMIT(yMinChanged());
-}
-
-void Chart::setYmax(qreal yMax)
-{
-    m_yMax = yMax;
-    Q_EMIT(yMaxChanged());
+    connect(this, &Chart::extremaChanged, this, &QQuickItem::update);
 }
 
 void Chart::paint(QPainter *painter)
@@ -87,12 +63,16 @@ void Chart::paint(QPainter *painter)
 void Chart::createSeries(Track *track)
 {
     connect(track, &Track::pathChanged, this, &QQuickItem::update);
+    connect(track, &Track::pathChanged, this, &Chart::updateExtrema); // FIXME: if for example points are remmoved, only update extrema when needed
     connect(track, &Track::destroyed, this, [=](){
         m_trackList.removeOne(track);
+        updateExtrema();
         Q_EMIT(countChanged());
         Q_EMIT(trackRemoved(track->objectName()));
     });
     m_trackList.append(track);
+    updateExtrema();
+    Q_EMIT(extremaChanged());
     Q_EMIT(countChanged());
     Q_EMIT(trackAdded(track));
 }
@@ -105,4 +85,30 @@ qreal Chart::mapToDistance(int x) const
 QPoint Chart::mapToPosition(const QPointF &point) const
 {
     return QPoint(int(width()*(point.x()-m_xMin)/(m_xMax-m_xMin)), int(height()-height()*(point.y()-m_yMin)/(m_yMax-m_yMin)));
+}
+
+void Chart::updateExtrema()
+{
+    m_xMax = 0.0;
+    m_yMin = 0.0;
+    m_yMax = 0.0;
+    for (auto t = m_trackList.begin(); t != m_trackList.end(); ++t) {
+        Track *track = *t;
+        if (t == m_trackList.begin()) {
+            m_xMax = track->distance2D();
+            m_yMin = track->altitudeMin();
+            m_yMax = track->altitudeMax();
+        } else {
+            m_xMax = qMax(m_xMax, track->distance2D());
+            m_yMin = qMin(m_yMin, track->altitudeMin());
+            m_yMax = qMax(m_yMax, track->altitudeMax());
+        }
+    }
+    // padding
+    m_yMin *= 0.95;
+    m_yMax *= 1.05;
+    // default minimum values
+    m_xMax = qMax(m_xMax, DEFAULT_XMAX);
+    m_yMax = qMax(m_yMax, DEFAULT_YMAX);
+    Q_EMIT(extremaChanged());
 }

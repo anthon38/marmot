@@ -27,22 +27,18 @@
 class Chart : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(qreal xMin READ xMin WRITE setXmin NOTIFY xMinChanged)
-    Q_PROPERTY(qreal xMax READ xMax WRITE setXmax NOTIFY xMaxChanged)
-    Q_PROPERTY(qreal yMin READ yMin WRITE setYmin NOTIFY yMinChanged)
-    Q_PROPERTY(qreal yMax READ yMax WRITE setYmax NOTIFY yMaxChanged)
+    Q_PROPERTY(qreal xMin READ xMin NOTIFY extremaChanged)
+    Q_PROPERTY(qreal xMax READ xMax NOTIFY extremaChanged)
+    Q_PROPERTY(qreal yMin READ yMin NOTIFY extremaChanged)
+    Q_PROPERTY(qreal yMax READ yMax NOTIFY extremaChanged)
     Q_PROPERTY(qreal count READ count NOTIFY countChanged)
 
 public:
     explicit Chart(QQuickItem *parent = nullptr);
     qreal xMin() const {return m_xMin;}
-    void setXmin(qreal xMin);
     qreal xMax() const {return m_xMax;}
-    void setXmax(qreal xMax);
     qreal yMin() const {return m_yMin;}
-    void setYmin(qreal yMin);
     qreal yMax() const {return m_yMax;}
-    void setYmax(qreal yMax);
     int count() const {return m_trackList.length();}
 
     void paint(QPainter *painter);
@@ -51,15 +47,13 @@ public:
     Q_INVOKABLE QPoint mapToPosition(const QPointF &point) const;
 
 Q_SIGNALS:
-    void xMinChanged();
-    void xMaxChanged();
-    void yMinChanged();
-    void yMaxChanged();
+    void extremaChanged();
     void countChanged();
     void trackAdded(Track *track);
     void trackRemoved(QString trackName);
 
 private:
+    void updateExtrema();
     qreal m_xMin;
     qreal m_xMax;
     qreal m_yMin;
