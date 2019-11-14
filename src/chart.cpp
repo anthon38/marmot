@@ -63,7 +63,7 @@ void Chart::paint(QPainter *painter)
 void Chart::createSeries(Track *track)
 {
     connect(track, &Track::pathChanged, this, &QQuickItem::update);
-    connect(track, &Track::pathChanged, this, &Chart::updateExtrema); // FIXME: if for example points are remmoved, only update extrema when needed
+    connect(track, &Track::pathChanged, this, &Chart::updateExtrema); // FIXME: if for example points are removed, only update extrema when needed
     connect(track, &Track::destroyed, this, [=](){
         m_trackList.removeOne(track);
         updateExtrema();
