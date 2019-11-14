@@ -33,6 +33,7 @@ Chart::Chart(QQuickItem *parent)
     , m_yMax(DEFAULT_YMAX)
 {
     setFlag(ItemHasContents, true);
+    setAntialiasing(true);
 
     connect(this, &Chart::countChanged, this, &QQuickItem::update);
     connect(this, &Chart::extremaChanged, this, &QQuickItem::update);
@@ -40,7 +41,6 @@ Chart::Chart(QQuickItem *parent)
 
 void Chart::paint(QPainter *painter)
 {
-    painter->setRenderHint(QPainter::Antialiasing);
     qreal xRatio = width()/((m_xMax-m_xMin));
     qreal yRatio = -height()/(m_yMax-m_yMin);
 
