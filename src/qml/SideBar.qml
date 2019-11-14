@@ -118,6 +118,7 @@ Drawer {
             Layout.fillHeight: true
 
             currentIndex: bar.currentIndex
+            onCurrentIndexChanged: bar.currentIndex = currentIndex
 
             ColumnLayout {
                 spacing: 0
