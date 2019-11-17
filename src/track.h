@@ -34,14 +34,14 @@ class Track : public QObject
     Q_PROPERTY(QString description READ description)
     Q_PROPERTY(int length READ length)
     Q_PROPERTY(QString statistics READ statistics NOTIFY statisticsChanged)
-    Q_PROPERTY(QString duration READ duration)
+    Q_PROPERTY(QString duration READ duration NOTIFY durationChanged)
     Q_PROPERTY(QVariantList path READ variantPath WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(QGeoRectangle boundingBox READ boundingBox)
-    Q_PROPERTY(qreal climb READ climb)
-    Q_PROPERTY(qreal altitudeMax READ altitudeMax)
-    Q_PROPERTY(qreal altitudeMin READ altitudeMin)
-    Q_PROPERTY(qreal distance3D READ distance3D)
-    Q_PROPERTY(qreal distance2D READ distance2D)
+    Q_PROPERTY(qreal climb READ climb NOTIFY climbChanged)
+    Q_PROPERTY(qreal altitudeMax READ altitudeMax NOTIFY altitudeMaxChanged)
+    Q_PROPERTY(qreal altitudeMin READ altitudeMin NOTIFY altitudeMinChanged)
+    Q_PROPERTY(qreal distance3D READ distance3D NOTIFY distance3DChanged)
+    Q_PROPERTY(qreal distance2D READ distance2D NOTIFY distance2DChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
@@ -78,6 +78,12 @@ public:
 
 Q_SIGNALS:
     void statisticsChanged();
+    void durationChanged();
+    void climbChanged();
+    void altitudeMaxChanged();
+    void altitudeMinChanged();
+    void distance3DChanged();
+    void distance2DChanged();
     void pathChanged();
     void colorChanged();
 

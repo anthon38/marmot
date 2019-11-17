@@ -206,6 +206,7 @@ Drawer {
                             boundsBehavior: Flickable.StopAtBounds
                             model: proxy
                             delegate: Kirigami.AbstractCard {
+                                readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                 width: parent.width - Kirigami.Units.largeSpacing*4
                                 x: Kirigami.Units.largeSpacing*2
                                 showClickFeedback: true
@@ -242,10 +243,10 @@ Drawer {
                                                             icon.name: "document-edit"
                                                             text: qsTr("Edit file")
                                                             onTriggered: {
-                                                                if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
+                                                                if (application.activeFile === file) {
                                                                     application.activeFile = null
                                                                 } else {
-                                                                    application.activeFile = filesModel.get(proxy.sourceIndex(index))
+                                                                    application.activeFile = file
                                                                 }
                                                             }
                                                         }
@@ -265,22 +266,12 @@ Drawer {
                                         }
                                         Label {
                                             Layout.fillWidth: true
-                                            Component.onCompleted: {
-                                                var distance = 0.0
-                                                var climb = 0.0
-                                                var file = filesModel.get(proxy.sourceIndex(index))
-                                                for (var i = 0; i < file.tracks.length; ++i) {
-                                                    distance += file.tracks[i].distance3D
-                                                    climb += file.tracks[i].climb
-                                                }
-                                                text = qsTr("Distance: ")+(distance/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+climb.toFixed(0)+" m"
-                                            }
+                                            text: file ? qsTr("Distance: ")+(file.distance3D/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+file.climb.toFixed(0)+" m" : ""
                                         }
                                         Chart {
                                             Layout.fillWidth: true
                                             implicitHeight: 3*Kirigami.Units.gridUnit*Kirigami.Units.devicePixelRatio
                                             Component.onCompleted: {
-                                                var file = filesModel.get(proxy.sourceIndex(index))
                                                 for (var i = 0; i < file.tracks.length; ++i) {
                                                     createSeries(file.tracks[i])
                                                 }
@@ -288,7 +279,7 @@ Drawer {
                                         }
                                     }
                                 }
-                                highlighted: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                highlighted: application.activeFile === file
                                 onClicked: application.fitToTrack(proxy.sourceIndex(index))
                             }
                         }
@@ -306,6 +297,7 @@ Drawer {
                             boundsBehavior: Flickable.StopAtBounds
                             model: proxy
                             delegate: Kirigami.SwipeListItem {
+                                readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                 contentItem: Label {
                                     text: name
                                 }
@@ -314,10 +306,10 @@ Drawer {
                                         iconName: "document-edit"
                                         text: qsTr("Edit file")
                                         onTriggered: {
-                                            if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
+                                            if (application.activeFile === file) {
                                                 application.activeFile = null
                                             } else {
-                                                application.activeFile = filesModel.get(proxy.sourceIndex(index))
+                                                application.activeFile = file
                                             }
                                         }
                                     },
@@ -326,7 +318,7 @@ Drawer {
                                         text: qsTr("Close file")
                                         onTriggered: application.removeFile(proxy.sourceIndex(index))
                                     }]
-                                highlighted: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                highlighted: application.activeFile === file
                                 onClicked: application.fitToTrack(proxy.sourceIndex(index))
                             }
                         }

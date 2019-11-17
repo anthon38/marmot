@@ -64,6 +64,7 @@ void Track::setDuration(qint64 s)
 {
     m_duration = secondsToFormattedString(s);
     Q_EMIT(statisticsChanged());
+    Q_EMIT(durationChanged());
 }
 
 QVariantList Track::variantPath() const
@@ -111,6 +112,10 @@ void Track::addPoint(const QGeoCoordinate &point, const QString &timeStamp)
     m_averagedAltitudes.append(point.altitude());
     m_distances2D.append(m_distance2D);
     m_timeStamps.append(timeStamp);
+    Q_EMIT(altitudeMaxChanged());
+    Q_EMIT(altitudeMinChanged());
+    Q_EMIT(distance3DChanged());
+    Q_EMIT(distance2DChanged());
 }
 
 void Track::movePoint(int index, const QGeoCoordinate &point)
@@ -155,6 +160,8 @@ void Track::movePoint(int index, const QGeoCoordinate &point)
         }
         Q_EMIT(pathChanged());
         Q_EMIT(statisticsChanged());
+        Q_EMIT(distance3DChanged());
+        Q_EMIT(distance2DChanged());
     }
 }
 
@@ -191,10 +198,14 @@ void Track::removePoint(int index)
         if (index == 0 || index == m_timeStamps.length()) {
             QDateTime t1 = QDateTime::fromString(m_timeStamps.first(), Qt::ISODate);
             QDateTime t2 = QDateTime::fromString(m_timeStamps.last(), Qt::ISODate);
-            m_duration = secondsToFormattedString(t1.secsTo(t2));
+            setDuration(t1.secsTo(t2));
         }
         Q_EMIT(pathChanged());
         Q_EMIT(statisticsChanged());
+        Q_EMIT(altitudeMaxChanged());
+        Q_EMIT(altitudeMinChanged());
+        Q_EMIT(distance3DChanged());
+        Q_EMIT(distance2DChanged());
     }
 }
 
@@ -214,6 +225,11 @@ void Track::setPath(const QVariantList &path)
     }
     computeStatistics(1, 0.0);
     Q_EMIT(pathChanged());
+    Q_EMIT(durationChanged());
+    Q_EMIT(altitudeMaxChanged());
+    Q_EMIT(altitudeMinChanged());
+    Q_EMIT(distance3DChanged());
+    Q_EMIT(distance2DChanged());
 }
 
 void Track::computeStatistics(int nAverage, qreal threshold)
@@ -240,6 +256,7 @@ void Track::computeClimb(qreal threshold)
     }
     m_climb = climb;
     m_descent = descent;
+    Q_EMIT(climbChanged());
 }
 
 void Track::averageAltitudes(int N)

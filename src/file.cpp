@@ -19,7 +19,6 @@
 
 #include "file.h"
 #include "poi.h"
-#include "track.h"
 
 #include <QFile>
 #include <QCoreApplication>
@@ -32,6 +31,11 @@
 
 File::File(QObject *parent)
     : QObject(parent)
+    , m_climb(0.0)
+    , m_altitudeMax(0.0)
+    , m_altitudeMin(0.0)
+    , m_distance3D(0.0)
+    , m_distance2D(0.0)
 {
     connect(this,&File::tracksChanged, &File::updateBoundingBox);
 }
@@ -65,6 +69,11 @@ bool File::open(const QString &fileName)
     }
     m_name = url.fileName();
     Q_EMIT(opened());
+    Q_EMIT(climbChanged());
+    Q_EMIT(altitudeMaxChanged());
+    Q_EMIT(altitudeMinChanged());
+    Q_EMIT(distance3DChanged());
+    Q_EMIT(distance2DChanged());
 
     return true;
 }
@@ -111,7 +120,7 @@ void File::parseKml(QXmlStreamReader *reader)
                     }
                     track->computeStatistics();
                     track->updateBoundingBox();
-                    m_tracks.append(track);
+                    appendTrack(track);
                 }
             }
         } else if (reader->isEndElement()) {
@@ -219,7 +228,7 @@ void File::parseGpx(QXmlStreamReader *reader)
                 }
                 track->computeStatistics();
                 track->updateBoundingBox();
-                m_tracks.append(track);
+                appendTrack(track);
 
                 name = "";
                 description = "";
@@ -249,7 +258,7 @@ void File::removePoi(int index)
 void File::addTrack()
 {
     Track *track = new Track(this);
-    m_tracks.append(track);
+    appendTrack(track);
     Q_EMIT(tracksChanged());
 }
 
@@ -316,6 +325,55 @@ void File::exportToGpx(const QString &fileName) const
         qDebug()<<QLatin1String("Error writing ")+fileName;
         return;
     }
+}
+
+void File::appendTrack(Track *track)
+{
+    m_climb += track->climb();
+    connect(track, &Track::climbChanged, this, [=](){
+        m_climb = 0.0;
+        for (auto trck : m_tracks) {
+            m_climb += static_cast<Track*>(trck)->climb();
+        }
+        Q_EMIT(climbChanged());
+    });
+    m_altitudeMax = qMax(m_altitudeMax, track->altitudeMax());
+    connect(track, &Track::altitudeMaxChanged, this, [=](){
+        m_altitudeMax = track->altitudeMax();
+        for (auto trck : m_tracks) {
+            m_altitudeMax = qMax(m_altitudeMax, static_cast<Track*>(trck)->altitudeMax());
+        }
+        Q_EMIT(altitudeMaxChanged());
+    });
+    if (m_tracks.isEmpty()) {
+        m_altitudeMin = track->altitudeMin();
+    } else {
+        m_altitudeMin = qMin(m_altitudeMin, track->altitudeMin());
+    }
+    connect(track, &Track::altitudeMinChanged, this, [=](){
+        m_altitudeMin = track->altitudeMin();
+        for (auto trck : m_tracks) {
+            m_altitudeMin = qMin(m_altitudeMin, static_cast<Track*>(trck)->altitudeMin());
+        }
+        Q_EMIT(altitudeMinChanged());
+    });
+    m_distance3D += track->distance3D();
+    connect(track, &Track::distance3DChanged, this, [=](){
+        m_distance3D = 0.0;
+        for (auto trck : m_tracks) {
+            m_distance3D += static_cast<Track*>(trck)->distance3D();
+        }
+        Q_EMIT(distance3DChanged());
+    });
+    m_distance2D += track->distance2D();
+    connect(track, &Track::distance2DChanged, this, [=](){
+        m_distance2D = 0.0;
+        for (auto trck : m_tracks) {
+            m_distance2D += static_cast<Track*>(trck)->distance2D();
+        }
+        Q_EMIT(distance2DChanged());
+    });
+    m_tracks.append(track);
 }
 
 void File::updateBoundingBox()
