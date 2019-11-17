@@ -89,7 +89,7 @@ BackGround {
         anchors.horizontalCenter: textInfo.horizontalCenter
         anchors.margins: Kirigami.Units.smallSpacing
         iconSize: Kirigami.Units.gridUnit
-        icon.name: "flag"
+        icon.name: "mark-location-symbolic"
         tooltipText: qsTr("Add points of interest")
         checkable: true
     }
