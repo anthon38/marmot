@@ -204,23 +204,86 @@ Drawer {
                             model: proxy
                             delegate: Kirigami.AbstractCard {
                                 showClickFeedback: true
-                                contentItem: ColumnLayout {
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: name
-                                    }
-                                    Chart {
-                                        Layout.fillWidth: true
-                                        implicitHeight: 100
-                                        Component.onCompleted: {
-                                            var file = filesModel.get(proxy.sourceIndex(index))
-                                            for (var i = 0; i < file.tracks.length; ++i) {
-                                                createSeries(file.tracks[i])
+                                contentItem: Item {
+                                    implicitWidth: layout.implicitWidth
+                                    implicitHeight: layout.implicitHeight
+                                    ColumnLayout {
+                                        id: layout
+                                        anchors {
+                                            left: parent.left
+                                            right: parent.right
+                                        }
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Kirigami.Heading {
+                                                Layout.fillWidth: true
+                                                text: name
+                                                level: 2
+                                                elide: Text.ElideRight
+                                                wrapMode: Text.Wrap
+                                            }
+                                            ToolButton {
+                                                Layout.alignment: Qt.AlignTop
+                                                action: Action {
+                                                    icon.name: "overflow-menu"
+                                                }
+                                                checked: menu.visible
+                                                onClicked: menu.visible ? menu.close() : menu.popup(0, height)
+                                                Menu {
+                                                    id: menu
+
+                                                    MenuItem {
+                                                        action: Action {
+                                                            icon.name: "document-edit"
+                                                            text: qsTr("Edit file")
+                                                            onTriggered: {
+                                                                if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
+                                                                    application.activeFile = null
+                                                                } else {
+                                                                    application.activeFile = filesModel.get(proxy.sourceIndex(index))
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    MenuItem {
+                                                        action: Action {
+                                                            icon.name: "document-close"
+                                                            text: qsTr("Close file")
+                                                            onTriggered: application.removeFile(proxy.sourceIndex(index))
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Kirigami.Separator {
+                                            Layout.fillWidth: true
+                                        }
+                                        Label {
+                                            Layout.fillWidth: true
+                                            Component.onCompleted: {
+                                                var distance = 0.0
+                                                var climb = 0.0
+                                                var file = filesModel.get(proxy.sourceIndex(index))
+                                                for (var i = 0; i < file.tracks.length; ++i) {
+                                                    distance += file.tracks[i].distance3D
+                                                    climb += file.tracks[i].climb
+                                                }
+                                                text = qsTr("Distance: ")+(distance/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+climb.toFixed(0)+" m"
+                                            }
+                                        }
+                                        Chart {
+                                            Layout.fillWidth: true
+                                            implicitHeight: 3*Kirigami.Units.gridUnit*Kirigami.Units.devicePixelRatio
+                                            Component.onCompleted: {
+                                                var file = filesModel.get(proxy.sourceIndex(index))
+                                                for (var i = 0; i < file.tracks.length; ++i) {
+                                                    createSeries(file.tracks[i])
+                                                }
                                             }
                                         }
                                     }
                                 }
-                                checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                highlighted: application.activeFile === filesModel.get(proxy.sourceIndex(index))
                                 onClicked: application.fitToTrack(proxy.sourceIndex(index))
                             }
                         }
@@ -258,7 +321,7 @@ Drawer {
                                         text: qsTr("Close file")
                                         onTriggered: application.removeFile(proxy.sourceIndex(index))
                                     }]
-                                checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                highlighted: application.activeFile === filesModel.get(proxy.sourceIndex(index))
                                 onClicked: application.fitToTrack(proxy.sourceIndex(index))
                             }
                         }
