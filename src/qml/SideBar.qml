@@ -402,7 +402,7 @@ Drawer {
                         }
                         display: Button.IconOnly
                         checked: menu.visible
-                        onClicked: menu.visible ? menu.close() : menu.popup(width, 0)
+                        onClicked: menu.visible ? menu.close() : menu.popup(0, height)
                         Menu {
                             id: menu
                             padding: Kirigami.Units.smallSpacing
