@@ -108,20 +108,17 @@ BackGround {
         }
     }
 
-    TextArea {
+    Label {
         id: textInfo
 
         anchors.right: altitudeProfile.left
         anchors.left: parent.left
         anchors.top: clearButton.bottom
         anchors.bottom: parent.bottom
-        anchors.margins: 0
+        anchors.margins: Kirigami.Units.smallSpacing
         wrapMode: TextEdit.NoWrap
         textFormat: Text.RichText
-        readOnly: true
-        background: Rectangle {
-            opacity: 0.0
-        }
+        verticalAlignment: Text.AlignTop
         text: file.tracks[0].statistics
     }
 

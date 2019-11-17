@@ -299,8 +299,9 @@ ApplicationWindow {
     MapQuickItem {
         id: trackInfoMapItem
         z: 12
-        sourceItem: TextArea {
+        sourceItem: Label {
             id: trackInfoItem
+            padding: Kirigami.Units.smallSpacing
             wrapMode: TextEdit.NoWrap
             textFormat: Text.RichText
             background: BackGround {}

@@ -35,7 +35,6 @@ MapPolyline {
         onClicked: {
             if (mouse.button == Qt.RightButton) {
                 map.addMapItem(trackInfoMapItem)
-                trackInfoItem.clear() // needed to prevent a small bug when the track name gets right aligned
                 trackInfoItem.text = "<center><i>"+track.name+"</i></center>"+track.statistics
                 trackInfoMapItem.coordinate = map.toCoordinate(Qt.point(mouse.x+polyLineItem.x, mouse.y+polyLineItem.y))
                 trackInfoMapItem.anchorPoint.x = 0
