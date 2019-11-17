@@ -172,47 +172,117 @@ Drawer {
                         ToolTip.delay: 500
                         ToolTip.text: action.text
                     }
+                    ToolButton {
+                        display: Button.IconOnly
+                        action: Kirigami.Action {
+                            iconName: fileView.useCardView ? "view-list-text" : "view-list-details"
+                            text: fileView.useCardView ? qsTr("List view") : qsTr("Card view")
+                            onTriggered: fileView.useCardView = !fileView.useCardView
+                        }
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 500
+                        ToolTip.text: action.text
+                    }
                 }
 
-                Kirigami.ScrollablePage {
+                SortFilterProxyModel {
+                    id: proxy
 
-                    Layout.margins: Kirigami.Units.smallSpacing
-                    Layout.fillHeight: true
+                    sourceModel: filesModel
+                    filterRole: Qt.UserRole+1
+                }
 
-                    ListView {
-                        id: filesList
+                Component {
+                    id: cardViewComponent
 
-                        boundsBehavior: Flickable.StopAtBounds
-                        model: SortFilterProxyModel {
-                            id: proxy
-                            sourceModel: filesModel
-                            filterRole: Qt.UserRole+1
+                    ScrollView {
+                        background: Rectangle {
+                            color: Kirigami.Theme.backgroundColor
                         }
-                        delegate: Kirigami.SwipeListItem {
-                            contentItem: Label {
-                                text: name
-                            }
-                            actions: [
-                                Kirigami.Action {
-                                    iconName: "document-edit"
-                                    text: qsTr("Edit file")
-                                    onTriggered: {
-                                        if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
-                                            application.activeFile = null
-                                        } else {
-                                            application.activeFile = filesModel.get(proxy.sourceIndex(index))
+                        Kirigami.CardsListView {
+                            boundsBehavior: Flickable.StopAtBounds
+                            model: proxy
+                            delegate: Kirigami.AbstractCard {
+                                showClickFeedback: true
+                                contentItem: ColumnLayout {
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: name
+                                    }
+                                    Chart {
+                                        Layout.fillWidth: true
+                                        implicitHeight: 100
+                                        Component.onCompleted: {
+                                            var file = filesModel.get(proxy.sourceIndex(index))
+                                            for (var i = 0; i < file.tracks.length; ++i) {
+                                                createSeries(file.tracks[i])
+                                            }
                                         }
                                     }
-                                },
-                                Kirigami.Action {
-                                    iconName: "document-close"
-                                    text: qsTr("Close file")
-                                    onTriggered: application.removeFile(proxy.sourceIndex(index))
-                                }]
-                            checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
-                            onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                                }
+                                checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                            }
                         }
                     }
+                }
+
+                Component {
+                    id: listViewComponent
+
+                    ScrollView {
+                        background: Rectangle {
+                            color: Kirigami.Theme.backgroundColor
+                        }
+                        ListView {
+                            boundsBehavior: Flickable.StopAtBounds
+                            model: proxy
+                            delegate: Kirigami.SwipeListItem {
+                                contentItem: Label {
+                                    text: name
+                                }
+                                actions: [
+                                    Kirigami.Action {
+                                        iconName: "document-edit"
+                                        text: qsTr("Edit file")
+                                        onTriggered: {
+                                            if (application.activeFile === filesModel.get(proxy.sourceIndex(index))) {
+                                                application.activeFile = null
+                                            } else {
+                                                application.activeFile = filesModel.get(proxy.sourceIndex(index))
+                                            }
+                                        }
+                                    },
+                                    Kirigami.Action {
+                                        iconName: "document-close"
+                                        text: qsTr("Close file")
+                                        onTriggered: application.removeFile(proxy.sourceIndex(index))
+                                    }]
+                                checked: application.activeFile === filesModel.get(proxy.sourceIndex(index))
+                                onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                            }
+                        }
+                    }
+                }
+
+                StackView {
+                    id: fileView
+
+                    property bool useCardView: Settings.booleanValue("useCardView", false)
+                    Layout.margins: Kirigami.Units.smallSpacing
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    initialItem: useCardView ? cardViewComponent : listViewComponent
+                    onUseCardViewChanged: {
+                        if (depth == 1) {
+                            // we had one page so we push the other
+                            push(useCardView ? cardViewComponent : listViewComponent, StackView.Immediate)
+                        } else if (depth == 2){
+                            // we pop the stack
+                            pop(StackView.Immediate)
+                        }
+                    }
+                    Component.onDestruction: Settings.setValue("useCardView", useCardView)
                 }
             }
 
