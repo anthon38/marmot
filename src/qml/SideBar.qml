@@ -199,10 +199,15 @@ Drawer {
                         background: Rectangle {
                             color: Kirigami.Theme.backgroundColor
                         }
-                        Kirigami.CardsListView {
+                        ListView {
+                            spacing: Kirigami.Units.largeSpacing*2
+                            topMargin: spacing
+                            bottomMargin: spacing
                             boundsBehavior: Flickable.StopAtBounds
                             model: proxy
                             delegate: Kirigami.AbstractCard {
+                                width: parent.width - Kirigami.Units.largeSpacing*4
+                                x: Kirigami.Units.largeSpacing*2
                                 showClickFeedback: true
                                 contentItem: Item {
                                     implicitWidth: layout.implicitWidth
