@@ -72,12 +72,9 @@ Drawer {
             }
 
             CustomToolButton {
-                action: Kirigami.Action {
-                    iconName: "settings-configure"
-                    text: qsTr("Configure...")
-                    onTriggered: popup.open()
-                }
-                tooltipText: action.text
+                icon.name: "settings-configure"
+                tooltipText: qsTr("Configure...")
+                onClicked: popup.open()
 
                 Dialog {
                     id: popup
@@ -128,16 +125,10 @@ Drawer {
                     Layout.leftMargin: Kirigami.Units.smallSpacing
                     Layout.rightMargin: Kirigami.Units.smallSpacing
 
-                    ToolButton {
-                        display: Button.IconOnly
-                        action: Kirigami.Action {
-                            iconName: "document-open"
-                            text: qsTr("Open...")
-                            onTriggered: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
-                        }
-                        ToolTip.visible: hovered
-                        ToolTip.delay: 500
-                        ToolTip.text: action.text
+                    CustomToolButton {
+                        icon.name: "document-open"
+                        tooltipText: qsTr("Open...")
+                        onClicked: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
                     }
                     Kirigami.ActionTextField {
                         id: modelFilterField
@@ -161,27 +152,15 @@ Drawer {
                             onCountChanged: if (filesModel.count == 0) clearAction.trigger()
                         }
                     }
-                    ToolButton {
-                        display: Button.IconOnly
-                        action: Kirigami.Action {
-                            iconName: "document-close"
-                            text: qsTr("Close all")
-                            onTriggered: application.closeAllFiles()
-                        }
-                        ToolTip.visible: hovered
-                        ToolTip.delay: 500
-                        ToolTip.text: action.text
+                    CustomToolButton {
+                        icon.name: "document-close"
+                        tooltipText: qsTr("Close all")
+                        onClicked: application.closeAllFiles()
                     }
-                    ToolButton {
-                        display: Button.IconOnly
-                        action: Kirigami.Action {
-                            iconName: fileView.useCardView ? "view-list-text" : "view-list-details"
-                            text: fileView.useCardView ? qsTr("List view") : qsTr("Card view")
-                            onTriggered: fileView.useCardView = !fileView.useCardView
-                        }
-                        ToolTip.visible: hovered
-                        ToolTip.delay: 500
-                        ToolTip.text: action.text
+                    CustomToolButton {
+                        icon.name: fileView.useCardView ? "view-list-text" : "view-list-details"
+                        tooltipText: fileView.useCardView ? qsTr("List view") : qsTr("Card view")
+                        onClicked: fileView.useCardView = !fileView.useCardView
                     }
                 }
 
@@ -228,11 +207,9 @@ Drawer {
                                                 elide: Text.ElideRight
                                                 wrapMode: Text.Wrap
                                             }
-                                            ToolButton {
+                                            CustomToolButton {
                                                 Layout.alignment: Qt.AlignTop
-                                                action: Action {
-                                                    icon.name: "overflow-menu"
-                                                }
+                                                icon.name: "overflow-menu"
                                                 checked: menu.visible
                                                 onClicked: menu.visible ? menu.close() : menu.popup(0, height)
                                                 Menu {
@@ -395,12 +372,9 @@ Drawer {
                             }
                         ]
                     }
-                    ToolButton {
-                        action: Action {
-                            icon.name: "internet-services"
-                            text: qsTr("Provider...")
-                        }
-                        display: Button.IconOnly
+                    CustomToolButton {
+                        icon.name: "internet-services"
+                        tooltipText: qsTr("Provider...")
                         checked: menu.visible
                         onClicked: menu.visible ? menu.close() : menu.popup(0, height)
                         Menu {
@@ -422,9 +396,6 @@ Drawer {
                                 }
                             }
                         }
-                        ToolTip.visible: hovered
-                        ToolTip.delay: 500
-                        ToolTip.text: action.text
                     }
                 }
 
