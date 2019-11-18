@@ -71,6 +71,7 @@ Item {
             id: restartMessage
             Layout.fillWidth: true
             visible: false
+            showCloseButton: true
             text: qsTr("%1 has to be restarted for these changes to take effect.").arg(Qt.application.name)
         }
 
