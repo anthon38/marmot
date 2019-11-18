@@ -28,7 +28,8 @@ ToolButton {
     icon.width: iconSize
     icon.height: iconSize
     display: Button.IconOnly
+
     ToolTip.visible: tooltipText && hovered
-    ToolTip.delay: 500
+    ToolTip.delay: Kirigami.Units.toolTipDelay
     ToolTip.text: tooltipText
 }

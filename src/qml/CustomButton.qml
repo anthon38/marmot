@@ -22,15 +22,15 @@ import QtQuick.Controls 2.5
 import org.kde.kirigami 2.9 as Kirigami
 
 Button {
-    property var tooltipText
+    property var tooltipText: ""
     property var iconSize: Kirigami.Units.iconSizes.small
 
     icon.width: iconSize
     icon.height: iconSize
     display: Button.IconOnly
-    ToolTip.visible: hovered
-    ToolTip.delay: 500
-    ToolTip.text: tooltipText
-
     onReleased: focus = false
+
+    ToolTip.visible: tooltipText && hovered
+    ToolTip.delay: Kirigami.Units.toolTipDelay
+    ToolTip.text: tooltipText
 }
