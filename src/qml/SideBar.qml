@@ -17,7 +17,7 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.13
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
@@ -130,23 +130,28 @@ Drawer {
                         tooltipText: qsTr("Open...")
                         onClicked: Qt.createComponent("OpenDialog.qml").createObject(sidebar)
                     }
-                    Kirigami.ActionTextField {
+                    TextField {
                         id: modelFilterField
 
                         Layout.fillWidth: true
+                        rightPadding: clearFilterButton.visible ? clearFilterButton.width : padding
 
                         font.italic: text.length === 0
                         placeholderText: qsTr("Filter...")
                         enabled: filesModel.count > 0
                         onTextChanged: proxy.setFilterFixedString(text)
-                        rightActions: [
-                            Kirigami.Action {
-                                id: clearAction
-                                iconName: "edit-clear"
-                                visible: modelFilterField.text !== ""
-                                onTriggered: modelFilterField.clear()
+                        IconButton {
+                            id: clearFilterButton
+                            height: parent.height
+                            anchors {
+                                right: parent.right
+                                verticalCenter: parent.verticalCenter
                             }
-                        ]
+                            visible: modelFilterField.text !== ""
+                            icon.name: "edit-clear"
+
+                            onClicked: modelFilterField.clear()
+                        }
                         Connections {
                             target: filesModel
                             onCountChanged: if (filesModel.count == 0) clearAction.trigger()
@@ -182,13 +187,12 @@ Drawer {
                             spacing: Kirigami.Units.largeSpacing*2
                             topMargin: spacing
                             bottomMargin: spacing
-                            boundsBehavior: Flickable.StopAtBounds
                             model: proxy
-                            delegate: Kirigami.AbstractCard {
+                            delegate: ItemDelegate {
+                                id: root
                                 readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                 width: parent.width - Kirigami.Units.largeSpacing*4
                                 x: Kirigami.Units.largeSpacing*2
-                                showClickFeedback: true
                                 contentItem: Item {
                                     implicitWidth: layout.implicitWidth
                                     implicitHeight: layout.implicitHeight
@@ -238,7 +242,7 @@ Drawer {
                                                 }
                                             }
                                         }
-                                        Kirigami.Separator {
+                                        Separator {
                                             Layout.fillWidth: true
                                         }
                                         Label {
@@ -258,6 +262,15 @@ Drawer {
                                 }
                                 highlighted: application.activeFile === file
                                 onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                                layer.enabled: true
+                                layer.effect: DropShadow {
+                                    cached: true
+                                    verticalOffset: 1
+                                    radius: 12
+                                    samples: 25
+                                    color: Qt.rgba(0, 0, 0, 0.5)
+                                }
+
                             }
                         }
                     }
@@ -271,32 +284,51 @@ Drawer {
                             color: Kirigami.Theme.backgroundColor
                         }
                         ListView {
-                            boundsBehavior: Flickable.StopAtBounds
                             model: proxy
-                            delegate: Kirigami.SwipeListItem {
-                                readonly property var file: filesModel.get(proxy.sourceIndex(index))
-                                contentItem: Label {
-                                    text: name
+                            delegate: ColumnLayout {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
                                 }
-                                actions: [
-                                    Kirigami.Action {
-                                        iconName: "document-edit"
-                                        text: qsTr("Edit file")
-                                        onTriggered: {
-                                            if (application.activeFile === file) {
-                                                application.activeFile = null
-                                            } else {
-                                                application.activeFile = file
+                                spacing: -separator.height
+
+                                ItemDelegate {
+                                    id: itemDelegate
+                                    readonly property var file: filesModel.get(proxy.sourceIndex(index))
+                                    Layout.fillWidth: true
+                                    implicitHeight: buttonsRow.implicitHeight + 2*padding
+
+                                    contentItem: Label {
+                                        text: name
+                                        Row {
+                                            id: buttonsRow
+                                            anchors.right: parent.right
+                                            visible: itemDelegate.hovered
+                                            CustomToolButton {
+                                                icon.name: "document-edit"
+                                                tooltipText: qsTr("Edit file")
+                                                onClicked: {
+                                                    if (application.activeFile === file) {
+                                                        application.activeFile = null
+                                                    } else {
+                                                        application.activeFile = file
+                                                    }
+                                                }
+                                            }
+                                            CustomToolButton {
+                                                icon.name: "document-close"
+                                                tooltipText: qsTr("Close file")
+                                                onClicked: application.removeFile(proxy.sourceIndex(index))
                                             }
                                         }
-                                    },
-                                    Kirigami.Action {
-                                        iconName: "document-close"
-                                        text: qsTr("Close file")
-                                        onTriggered: application.removeFile(proxy.sourceIndex(index))
-                                    }]
-                                highlighted: application.activeFile === file
-                                onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                                    }
+                                    highlighted: application.activeFile === file
+                                    onClicked: application.fitToTrack(proxy.sourceIndex(index))
+                                }
+                                Separator {
+                                    id: separator
+                                    Layout.fillWidth: true
+                                }
                             }
                         }
                     }
@@ -331,10 +363,12 @@ Drawer {
                     Layout.leftMargin: Kirigami.Units.smallSpacing
                     Layout.rightMargin: Kirigami.Units.smallSpacing
 
-                    Kirigami.ActionTextField {
+                   TextField {
                         id: searchInput
 
                         Layout.fillWidth: true
+                        leftPadding: searchButton.visible ? searchButton.width : padding
+                        rightPadding: clearSearchButton.visible ? clearSearchButton.width : padding
 
                         font.italic: text.length === 0
                         placeholderText: qsTr("Search...")
@@ -354,23 +388,33 @@ Drawer {
                             }
                             searchGeocodeModel.query = text
                         }
-                        leftActions: [
-                            Kirigami.Action {
-                                iconName: "search"
-                                visible: searchInput.text !== ""
-                                onTriggered: searchInput.accepted()
+                        IconButton {
+                            id: searchButton
+                            height: parent.height
+                            anchors {
+                                left: parent.left
+                                verticalCenter: parent.verticalCenter
                             }
-                        ]
-                        rightActions: [
-                            Kirigami.Action {
-                                iconName: "edit-clear"
-                                visible: searchInput.text !== ""
-                                onTriggered: {
-                                    searchInput.clear()
-                                    searchInput.accepted()
-                                }
+                            visible: searchInput.text !== ""
+                            icon.name: "search"
+
+                            onClicked: searchInput.accepted()
+                        }
+                        IconButton {
+                            id: clearSearchButton
+                            height: parent.height
+                            anchors {
+                                right: parent.right
+                                verticalCenter: parent.verticalCenter
                             }
-                        ]
+                            visible: searchInput.text !== ""
+                            icon.name: "edit-clear"
+
+                            onClicked: {
+                                searchInput.clear()
+                                searchInput.accepted()
+                            }
+                        }
                     }
                     CustomToolButton {
                         icon.name: "internet-services"
@@ -399,26 +443,40 @@ Drawer {
                     }
                 }
 
-                Kirigami.ScrollablePage {
+                ScrollView {
+                    background: Rectangle {
+                        color: Kirigami.Theme.backgroundColor
+                    }
 
                     Layout.margins: Kirigami.Units.smallSpacing
+                    Layout.fillWidth: true
                     Layout.fillHeight: true
 
                     ListView {
                         id: searchResultsList
 
-                        boundsBehavior: Flickable.StopAtBounds
                         model: searchModel
-                        delegate: Kirigami.BasicListItem {
-                            reserveSpaceForIcon: false
-                            label: address
-                            onClicked: {
-                                if (searchGeocodeModel.get(index).boundingBox.isValid) {
-                                    map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
-                                } else if (searchGeocodeModel.get(index).coordinate.isValid) {
-                                    map.center = searchGeocodeModel.get(index).coordinate
-                                    map.zoomLevel = 16
+                        delegate: ColumnLayout {
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                            }
+                            spacing: -separator.height
+                            ItemDelegate {
+                                Layout.fillWidth: true
+                                text: address
+                                onClicked: {
+                                    if (searchGeocodeModel.get(index).boundingBox.isValid) {
+                                        map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
+                                    } else if (searchGeocodeModel.get(index).coordinate.isValid) {
+                                        map.center = searchGeocodeModel.get(index).coordinate
+                                        map.zoomLevel = 16
+                                    }
                                 }
+                            }
+                            Separator {
+                                id: separator
+                                Layout.fillWidth: true
                             }
                         }
                     }

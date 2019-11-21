@@ -16,5 +16,7 @@
         <file>CustomButton.qml</file>
         <file>CustomToolButton.qml</file>
         <file>SettingsPanel.qml</file>
+        <file>Separator.qml</file>
+        <file>IconButton.qml</file>
     </qresource>
 </RCC>

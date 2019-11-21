@@ -27,6 +27,7 @@
 #include "chart.h"
 #include "filesmodel.h"
 #include "sortfilterproxymodel.h"
+#include "iconimage.h"
 #include "settings.h"
 #include "utils.h"
 
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Chart>("Marmot", 1, 0, "Chart");
     qmlRegisterType<FilesModel>("Marmot", 1, 0, "FilesModel");
     qmlRegisterType<SortFilterProxyModel>("Marmot", 1, 0, "SortFilterProxyModel");
+    qmlRegisterType<IconImage>("Marmot", 1, 0, "IconImage");
     qmlRegisterSingletonType<Settings>("Marmot", 1, 0, "Settings", &Settings::qmlInstance);
     qmlRegisterSingletonType<Utils>("Marmot", 1, 0, "Utils", &Utils::qmlInstance);
 

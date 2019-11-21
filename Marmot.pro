@@ -3,6 +3,7 @@ QT += qml quick positioning quickcontrols2 widgets
 CONFIG += c++11
 
 HEADERS += \
+    iconimage.h \
     src/file.h \
     src/filesmodel.h \
     src/poi.h \
@@ -13,6 +14,7 @@ HEADERS += \
     src/utils.h
 
 SOURCES += \
+    iconimage.cpp \
     src/file.cpp \
     src/filesmodel.cpp \
     src/main.cpp \
