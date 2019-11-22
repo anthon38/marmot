@@ -19,12 +19,12 @@
 
 import QtQuick 2.13
 import QtQuick.Layouts 1.3
-import org.kde.kirigami 2.9 as Kirigami
+import Marmot 1.0 as Marmot
 
 Rectangle {
-    height: Math.floor(Kirigami.Units.devicePixelRatio)
-    width: Math.floor(Kirigami.Units.devicePixelRatio)
-    Layout.preferredWidth: Math.floor(Kirigami.Units.devicePixelRatio)
-    Layout.preferredHeight: Math.floor(Kirigami.Units.devicePixelRatio)
-    color: Qt.tint(Kirigami.Theme.textColor, Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g, Kirigami.Theme.backgroundColor.b, 0.8))
+    height: Math.floor(Marmot.Units.devicePixelRatio)
+    width: Math.floor(Marmot.Units.devicePixelRatio)
+    Layout.preferredWidth: Math.floor(Marmot.Units.devicePixelRatio)
+    Layout.preferredHeight: Math.floor(Marmot.Units.devicePixelRatio)
+    color: Qt.tint(Marmot.Theme.text, Qt.rgba(Marmot.Theme.window.r, Marmot.Theme.window.g, Marmot.Theme.window.b, 0.8))
 }

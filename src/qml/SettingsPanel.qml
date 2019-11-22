@@ -20,9 +20,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
-import org.kde.kirigami 2.9 as Kirigami
-
-import Marmot 1.0
+import Marmot 1.0 as Marmot
 
 Item {
     implicitWidth: mainLayout.width
@@ -35,8 +33,8 @@ Item {
 
     Component.onCompleted: {
         // load settings
-        tilesembeddedButton.checked = Settings.booleanValue("providersUseEmbedded", true)
-        tilesstdpathButton.checked = Settings.booleanValue("providersUseStdPath", false)
+        tilesembeddedButton.checked = Marmot.Settings.booleanValue("providersUseEmbedded", true)
+        tilesstdpathButton.checked = Marmot.Settings.booleanValue("providersUseStdPath", false)
     }
 
     ColumnLayout {
@@ -61,18 +59,51 @@ Item {
                 }
                 RadioButton {
                     id: tilesstdpathButton
-                    text: qsTr("Configuration directory (%1)").arg(Utils.prettyUrl(Utils.location(Utils.AppConfigLocation)+"/providers/"))
+                    text: qsTr("Configuration directory (%1)").arg(Marmot.Utils.prettyUrl(Marmot.Utils.location(Marmot.Utils.AppConfigLocation)+"/providers/"))
                     ButtonGroup.group: providersButtonGroup
                 }
             }
         }
 
-        Kirigami.InlineMessage {
+        Control {
             id: restartMessage
             Layout.fillWidth: true
             visible: false
-            showCloseButton: true
-            text: qsTr("%1 has to be restarted for these changes to take effect.").arg(Qt.application.name)
+            contentItem: RowLayout {
+                    id: content
+                    anchors.fill: parent
+                    anchors.margins: Marmot.Units.smallSpacing
+                    Marmot.IconImage {
+                        name: "dialog-information"
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        text: qsTr("%1 has to be restarted for these changes to take effect.").arg(Qt.application.name)
+                    }
+                    ToolButton {
+                        icon.name: "dialog-close"
+                        onClicked: restartMessage.visible = false
+                    }
+                }
+            background: Rectangle {
+                id: bgBorderRect
+                color: Marmot.Theme.highlight
+                radius: Marmot.Units.smallSpacing/2
+                Rectangle {
+                    id: bgFillRect
+                    anchors.fill: bgBorderRect
+                    anchors.margins: Marmot.Units.devicePixelRatio
+                    color: Marmot.Theme.window
+                    radius: bgBorderRect.radius * 0.60
+                }
+
+                Rectangle {
+                    anchors.fill: bgFillRect
+                    color: bgBorderRect.color
+                    opacity: 0.20
+                    radius: bgFillRect.radius
+                }
+            }
         }
 
     }

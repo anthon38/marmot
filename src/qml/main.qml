@@ -24,9 +24,7 @@ import QtPositioning 5.5
 import QtLocation 5.13
 import QtQuick.Layouts 1.3
 import QtQml 2.13
-import org.kde.kirigami 2.9 as Kirigami
-
-import Marmot 1.0
+import Marmot 1.0 as Marmot
 
 ApplicationWindow {
     id: application
@@ -36,8 +34,8 @@ ApplicationWindow {
 
     visible: true
     visibility: Window.Maximized
-    width: 450*Kirigami.Units.devicePixelRatio
-    height: 300*Kirigami.Units.devicePixelRatio
+    width: 450*Marmot.Units.devicePixelRatio
+    height: 300*Marmot.Units.devicePixelRatio
 
     Component.onCompleted: { if (Qt.application.arguments.length > 1) delayedLoading.start() }
 
@@ -71,7 +69,7 @@ ApplicationWindow {
         name: "osm"
         PluginParameter {
             name: "osm.mapping.providersrepository.address"
-            value: Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Utils.location(Utils.AppConfigLocation)+"/providers/"
+            value: Marmot.Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Marmot.Utils.location(Marmot.Utils.AppConfigLocation)+"/providers/"
         }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
@@ -301,7 +299,7 @@ ApplicationWindow {
         z: 12
         sourceItem: Label {
             id: trackInfoItem
-            padding: Kirigami.Units.smallSpacing
+            padding: Marmot.Units.smallSpacing
             wrapMode: TextEdit.NoWrap
             textFormat: Text.RichText
             background: BackGround {}
@@ -319,7 +317,7 @@ ApplicationWindow {
         id: editToolBar
         anchors {
             bottom: parent.top
-            margins: Kirigami.Units.largeSpacing
+            margins: Marmot.Units.largeSpacing
             horizontalCenter: map.horizontalCenter
         }
         state: activeFile ? "visible" : ""
@@ -338,7 +336,7 @@ ApplicationWindow {
         }
     }
 
-    FilesModel {
+    Marmot.FilesModel {
         id: filesModel
 
         onFileAppened: {
@@ -411,15 +409,15 @@ ApplicationWindow {
 
     SideBar {
         id: sideBar
-        width: Math.round(200*Kirigami.Units.devicePixelRatio)
+        width: Math.round(200*Marmot.Units.devicePixelRatio)
         height: application.height
     }
 
     CustomButton {
         id: menuButton
         anchors.top: parent.top
-        x: sideBar.position*sideBar.width+Kirigami.Units.largeSpacing
-        anchors.margins: Kirigami.Units.largeSpacing
+        x: sideBar.position*sideBar.width+Marmot.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
         icon.name: "application-menu"
         tooltipText: qsTr("Menu")
 
@@ -430,7 +428,7 @@ ApplicationWindow {
         id: osmButton
         anchors.right: parent.right
         anchors.bottom: plotRouteButton.top
-        anchors.margins: Kirigami.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
         icon.name: "internet-services"
         tooltipText: qsTr("Open in OpenStreetMap")
 
@@ -441,7 +439,7 @@ ApplicationWindow {
         id: plotRouteButton
         anchors.right: parent.right
         anchors.bottom: mapTypeButton.top
-        anchors.margins: Kirigami.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
         icon.name: "routeplanning"
         tooltipText: qsTr("Plot a route")
         checkable: true
@@ -453,14 +451,14 @@ ApplicationWindow {
         id: plotInfo
         anchors.right: plotRouteButton.left
         anchors.top: parent.bottom
-        anchors.margins: Kirigami.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
     }
 
     CustomButton {
         id: mapTypeButton
         anchors.right: parent.right
         anchors.bottom: fitToViewButton.top
-        anchors.margins: Kirigami.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
         icon.name: "layer-visible-on"
         tooltipText: qsTr("Layers")
         checked: menu.visible
@@ -469,7 +467,7 @@ ApplicationWindow {
 
         Menu {
             id: menu
-            padding: Kirigami.Units.smallSpacing
+            padding: Marmot.Units.smallSpacing
 
             Repeater {
                 id: mapTypeRepeater
@@ -500,7 +498,7 @@ ApplicationWindow {
         id: fitToViewButton
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: Kirigami.Units.largeSpacing
+        anchors.margins: Marmot.Units.largeSpacing
         icon.name: "zoom-fit-selection"
         tooltipText: qsTr("Fit to view")
 
@@ -517,9 +515,9 @@ ApplicationWindow {
         id: profileChart
         anchors.top: map.top
         anchors.right: map.right
-        anchors.margins: Kirigami.Units.largeSpacing
-        width: 200*Kirigami.Units.devicePixelRatio
-        height: 100*Kirigami.Units.devicePixelRatio
+        anchors.margins: Marmot.Units.largeSpacing
+        width: 200*Marmot.Units.devicePixelRatio
+        height: 100*Marmot.Units.devicePixelRatio
         visible: count > 0
 
         model: filesModel
@@ -528,7 +526,7 @@ ApplicationWindow {
     AggregateStats {
         id: aggregateStats
         anchors.top: profileChart.bottom
-        anchors.topMargin: Kirigami.Units.largeSpacing
+        anchors.topMargin: Marmot.Units.largeSpacing
         anchors.right: profileChart.right
         visible: profileChart.visible
     }

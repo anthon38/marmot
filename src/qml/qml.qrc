@@ -18,5 +18,7 @@
         <file>SettingsPanel.qml</file>
         <file>Separator.qml</file>
         <file>IconButton.qml</file>
+        <file>Units.qml</file>
+        <file>Theme.qml</file>
     </qresource>
 </RCC>

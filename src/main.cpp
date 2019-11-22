@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<IconImage>("Marmot", 1, 0, "IconImage");
     qmlRegisterSingletonType<Settings>("Marmot", 1, 0, "Settings", &Settings::qmlInstance);
     qmlRegisterSingletonType<Utils>("Marmot", 1, 0, "Utils", &Utils::qmlInstance);
+    qmlRegisterSingletonType(QUrl("qrc:/Units.qml"), "Marmot", 1, 0, "Units");
+    qmlRegisterSingletonType(QUrl("qrc:/Theme.qml"), "Marmot", 1, 0, "Theme");
 
     QTranslator translator;
     if (translator.load(QLocale(), QStringLiteral("marmot"), QStringLiteral("_"), QStringLiteral(":/translations/")))

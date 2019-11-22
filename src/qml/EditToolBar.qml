@@ -20,7 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
-import org.kde.kirigami 2.9 as Kirigami
+import Marmot 1.0 as Marmot
 
 
 ToolBar {
@@ -43,7 +43,7 @@ ToolBar {
     ]
     transitions: [
         Transition {
-            AnchorAnimation { duration: Kirigami.Units.longDuration }
+            AnchorAnimation { duration: Marmot.Units.longDuration }
         }
     ]
 

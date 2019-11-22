@@ -19,9 +19,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import org.kde.kirigami 2.9 as Kirigami
-
-import Marmot 1.0
+import Marmot 1.0 as Marmot
 
 Item {
     id: profileChartItem
@@ -36,7 +34,7 @@ Item {
         anchors.fill: parent
     }
 
-    Chart {
+    Marmot.Chart {
         id: chart
         anchors.top: elevationColumn.top
         anchors.topMargin: elevationColumn.itemHeight/2
@@ -131,7 +129,7 @@ Item {
     Label {
         id: elevationLabel
         anchors.left: parent.left
-        anchors.leftMargin: -width/2+height/2+Kirigami.Units.smallSpacing
+        anchors.leftMargin: -width/2+height/2+Marmot.Units.smallSpacing
         anchors.verticalCenter: chart.verticalCenter
         rotation: 270
         horizontalAlignment: Text.AlignHCenter
@@ -142,11 +140,11 @@ Item {
         id: elevationColumn
         property int itemHeight: 0
         anchors.top: parent.top
-        anchors.topMargin: Kirigami.Units.smallSpacing
+        anchors.topMargin: Marmot.Units.smallSpacing
         anchors.bottom: distanceRow.top
         anchors.bottomMargin: -itemHeight/2
         anchors.left: parent.left
-        anchors.leftMargin: elevationLabel.height+2*Kirigami.Units.smallSpacing
+        anchors.leftMargin: elevationLabel.height+2*Marmot.Units.smallSpacing
         spacing: (height-elevationRepeater.count*itemHeight)/(elevationRepeater.count-1)
 
         Repeater {
@@ -164,7 +162,7 @@ Item {
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     height: 1
-                    width: Kirigami.Units.smallSpacing
+                    width: Marmot.Units.smallSpacing
                     color: elevationLabel.color
                 }
             }
@@ -201,7 +199,7 @@ Item {
         anchors.left: verticalLine.right
         anchors.leftMargin: -firstItemWidth/2
         anchors.right: parent.right
-        anchors.rightMargin: Kirigami.Units.smallSpacing
+        anchors.rightMargin: Marmot.Units.smallSpacing
         spacing: (width-totalItemWidth)/(distanceRepeater.count-1)
 
         Repeater {
@@ -214,7 +212,7 @@ Item {
 
                 Rectangle {
                     anchors.horizontalCenter: label.horizontalCenter
-                    height: Kirigami.Units.smallSpacing
+                    height: Marmot.Units.smallSpacing
                     width: 1
                     color: distanceLabel.color
                 }
@@ -242,7 +240,7 @@ Item {
     Label {
         id: distanceLabel
         anchors.bottom: parent.bottom
-        anchors.margins: Kirigami.Units.smallSpacing
+        anchors.margins: Marmot.Units.smallSpacing
         anchors.horizontalCenter: chart.horizontalCenter
         horizontalAlignment: Text.AlignHCenter
         text: "<b>"+qsTr("Distance [km]")+"</b>"

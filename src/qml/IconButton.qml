@@ -19,14 +19,13 @@
 
 import QtQuick 2.13
 import QtQuick.Controls 2.13
-import org.kde.kirigami 2.9 as Kirigami
 import Marmot 1.0 as Marmot
 
 
 AbstractButton {
     id: root
     width: height
-    padding: Kirigami.Units.smallSpacing
+    padding: Marmot.Units.smallSpacing
     contentItem: Marmot.IconImage {
         name: root.icon.name
     }

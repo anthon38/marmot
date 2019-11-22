@@ -22,8 +22,7 @@ import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import QtLocation 5.13
 import QtGraphicalEffects 1.13
-import org.kde.kirigami 2.9 as Kirigami
-import Marmot 1.0
+import Marmot 1.0 as Marmot
 
 Drawer {
     id: sidebar
@@ -37,7 +36,7 @@ Drawer {
             bottom: parent.bottom
             left: parent.right
         }
-        width: 1.5*Kirigami.Units.smallSpacing
+        width: 1.5*Marmot.Units.smallSpacing
         start: Qt.point(0, 0)
         end: Qt.point(width, 0)
         gradient: Gradient {
@@ -64,11 +63,12 @@ Drawer {
         RowLayout {
 
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.largeSpacing
+            Layout.margins: Marmot.Units.largeSpacing
 
-            Kirigami.Heading {
+            Label {
                 Layout.fillWidth: true
                 text: Qt.application.name
+                font.pointSize: Math.round(application.font.pointSize*1.80)
             }
 
             CustomToolButton {
@@ -98,7 +98,7 @@ Drawer {
         TabBar {
             id: bar
 
-            Layout.margins: Kirigami.Units.smallSpacing
+            Layout.margins: Marmot.Units.smallSpacing
             Layout.fillWidth: true
 
             TabButton {
@@ -122,8 +122,8 @@ Drawer {
 
                 RowLayout {
 
-                    Layout.leftMargin: Kirigami.Units.smallSpacing
-                    Layout.rightMargin: Kirigami.Units.smallSpacing
+                    Layout.leftMargin: Marmot.Units.smallSpacing
+                    Layout.rightMargin: Marmot.Units.smallSpacing
 
                     CustomToolButton {
                         icon.name: "document-open"
@@ -154,7 +154,7 @@ Drawer {
                         }
                         Connections {
                             target: filesModel
-                            onCountChanged: if (filesModel.count == 0) clearAction.trigger()
+                            onCountChanged: if (filesModel.count == 0) modelFilterField.clear()
                         }
                     }
                     CustomToolButton {
@@ -169,7 +169,7 @@ Drawer {
                     }
                 }
 
-                SortFilterProxyModel {
+                Marmot.SortFilterProxyModel {
                     id: proxy
 
                     sourceModel: filesModel
@@ -181,18 +181,18 @@ Drawer {
 
                     ScrollView {
                         background: Rectangle {
-                            color: Kirigami.Theme.backgroundColor
+                            color: Marmot.Theme.base
                         }
                         ListView {
-                            spacing: Kirigami.Units.largeSpacing*2
+                            spacing: Marmot.Units.largeSpacing*2
                             topMargin: spacing
                             bottomMargin: spacing
                             model: proxy
                             delegate: ItemDelegate {
                                 id: root
                                 readonly property var file: filesModel.get(proxy.sourceIndex(index))
-                                width: parent.width - Kirigami.Units.largeSpacing*4
-                                x: Kirigami.Units.largeSpacing*2
+                                width: parent.width - Marmot.Units.largeSpacing*4
+                                x: Marmot.Units.largeSpacing*2
                                 contentItem: Item {
                                     implicitWidth: layout.implicitWidth
                                     implicitHeight: layout.implicitHeight
@@ -204,12 +204,12 @@ Drawer {
                                         }
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Kirigami.Heading {
+                                            Label {
                                                 Layout.fillWidth: true
                                                 text: name
-                                                level: 2
                                                 elide: Text.ElideRight
                                                 wrapMode: Text.Wrap
+                                                font.pointSize: Math.round(application.font.pointSize*1.30)
                                             }
                                             CustomToolButton {
                                                 Layout.alignment: Qt.AlignTop
@@ -249,9 +249,9 @@ Drawer {
                                             Layout.fillWidth: true
                                             text: file ? qsTr("Distance: ")+(file.distance3D/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+file.climb.toFixed(0)+" m" : ""
                                         }
-                                        Chart {
+                                        Marmot.Chart {
                                             Layout.fillWidth: true
-                                            implicitHeight: 3*Kirigami.Units.gridUnit*Kirigami.Units.devicePixelRatio
+                                            implicitHeight: 3*Marmot.Units.gridUnit*Marmot.Units.devicePixelRatio
                                             Component.onCompleted: {
                                                 for (var i = 0; i < file.tracks.length; ++i) {
                                                     createSeries(file.tracks[i])
@@ -281,7 +281,7 @@ Drawer {
 
                     ScrollView {
                         background: Rectangle {
-                            color: Kirigami.Theme.backgroundColor
+                            color: Marmot.Theme.base
                         }
                         ListView {
                             model: proxy
@@ -337,8 +337,8 @@ Drawer {
                 StackView {
                     id: fileView
 
-                    property bool useCardView: Settings.booleanValue("useCardView", false)
-                    Layout.margins: Kirigami.Units.smallSpacing
+                    property bool useCardView: Marmot.Settings.booleanValue("useCardView", false)
+                    Layout.margins: Marmot.Units.smallSpacing
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     initialItem: useCardView ? cardViewComponent : listViewComponent
@@ -351,7 +351,7 @@ Drawer {
                             pop(StackView.Immediate)
                         }
                     }
-                    Component.onDestruction: Settings.setValue("useCardView", useCardView)
+                    Component.onDestruction: Marmot.Settings.setValue("useCardView", useCardView)
                 }
             }
 
@@ -360,8 +360,8 @@ Drawer {
 
                 RowLayout {
 
-                    Layout.leftMargin: Kirigami.Units.smallSpacing
-                    Layout.rightMargin: Kirigami.Units.smallSpacing
+                    Layout.leftMargin: Marmot.Units.smallSpacing
+                    Layout.rightMargin: Marmot.Units.smallSpacing
 
                    TextField {
                         id: searchInput
@@ -423,7 +423,7 @@ Drawer {
                         onClicked: menu.visible ? menu.close() : menu.popup(0, height)
                         Menu {
                             id: menu
-                            padding: Kirigami.Units.smallSpacing
+                            padding: Marmot.Units.smallSpacing
 
                             RadioButton {
                                 checked: searchGeocodeModel.plugin == osmPlugin
@@ -445,10 +445,10 @@ Drawer {
 
                 ScrollView {
                     background: Rectangle {
-                        color: Kirigami.Theme.backgroundColor
+                        color: Marmot.Theme.base
                     }
 
-                    Layout.margins: Kirigami.Units.smallSpacing
+                    Layout.margins: Marmot.Units.smallSpacing
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 

@@ -19,10 +19,10 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import org.kde.kirigami 2.9 as Kirigami
+import Marmot 1.0 as Marmot
 
 Label {
-    padding: Kirigami.Units.smallSpacing
+    padding: Marmot.Units.smallSpacing
 
     background: BackGround {}
 

@@ -19,7 +19,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import org.kde.kirigami 2.9 as Kirigami
+import Marmot 1.0 as Marmot
 
 import Marmot 1.0
 
@@ -44,7 +44,7 @@ BackGround {
     ]
     transitions: [
         Transition {
-            AnchorAnimation { duration: Kirigami.Units.longDuration }
+            AnchorAnimation { duration: Marmot.Units.longDuration }
         }
     ]
 
@@ -73,8 +73,8 @@ BackGround {
         id: clearButton
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.margins: Kirigami.Units.smallSpacing
-        iconSize: Kirigami.Units.gridUnit
+        anchors.margins: Marmot.Units.smallSpacing
+        iconSize: Marmot.Units.gridUnit
         icon.name: "edit-clear-all-symbolic"
         tooltipText: qsTr("Clear")
         onClicked: {
@@ -87,8 +87,8 @@ BackGround {
         id: poiButton
         anchors.top: parent.top
         anchors.horizontalCenter: textInfo.horizontalCenter
-        anchors.margins: Kirigami.Units.smallSpacing
-        iconSize: Kirigami.Units.gridUnit
+        anchors.margins: Marmot.Units.smallSpacing
+        iconSize: Marmot.Units.gridUnit
         icon.name: "mark-location-symbolic"
         tooltipText: qsTr("Add points of interest")
         checkable: true
@@ -98,8 +98,8 @@ BackGround {
         id: exportButton
         anchors.top: parent.top
         anchors.right: textInfo.right
-        anchors.margins: Kirigami.Units.smallSpacing
-        iconSize: Kirigami.Units.gridUnit
+        anchors.margins: Marmot.Units.smallSpacing
+        iconSize: Marmot.Units.gridUnit
         icon.name: "document-save-as-symbolic"
         tooltipText: qsTr("Export to GPX")
         onClicked: {
@@ -115,7 +115,7 @@ BackGround {
         anchors.left: parent.left
         anchors.top: clearButton.bottom
         anchors.bottom: parent.bottom
-        anchors.margins: Kirigami.Units.smallSpacing
+        anchors.margins: Marmot.Units.smallSpacing
         wrapMode: TextEdit.NoWrap
         textFormat: Text.RichText
         verticalAlignment: Text.AlignTop
@@ -129,8 +129,8 @@ BackGround {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 0
-        width: 200*Kirigami.Units.devicePixelRatio
-        height: 100*Kirigami.Units.devicePixelRatio
+        width: 200*Marmot.Units.devicePixelRatio
+        height: 100*Marmot.Units.devicePixelRatio
         antialiasing: true
         background.color: "transparent"
         background.border.color: "transparent"

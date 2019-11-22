@@ -19,7 +19,7 @@
 
 import QtQuick 2.0
 import QtLocation 5.13
-import org.kde.kirigami 2.9 as Kirigami
+import Marmot 1.0 as Marmot
 
 MapPolyline {
     id: polyLineItem
@@ -27,7 +27,7 @@ MapPolyline {
 
     path: track.path
     line.color: track.color
-    line.width: 5*Kirigami.Units.devicePixelRatio
+    line.width: 5*Marmot.Units.devicePixelRatio
 
     MouseArea {
         anchors.fill: parent

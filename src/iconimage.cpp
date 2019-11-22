@@ -23,6 +23,7 @@ IconImage::IconImage(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
     setFlag(ItemHasContents, true);
+    setImplicitSize(32, 32);
     connect(this, &IconImage::nameChanged, this, &QQuickItem::update);
     connect(this, &QQuickItem::enabledChanged, this, &QQuickItem::update);
 }
@@ -33,7 +34,7 @@ void IconImage::paint(QPainter *painter)
         return;
     m_icon.paint(painter, 0, 0, static_cast<int>(width()), static_cast<int>(height()),
                  Qt::AlignCenter,
-                 isEnabled() ? QIcon::Active : QIcon::Disabled
+                 isEnabled() ? QIcon::Normal : QIcon::Disabled
                  );
 }
 
