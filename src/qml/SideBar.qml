@@ -187,81 +187,88 @@ Drawer {
                             spacing: Marmot.Units.largeSpacing*2
                             topMargin: spacing
                             bottomMargin: spacing
+                            clip: true
+                            boundsBehavior: Flickable.StopAtBounds
                             model: proxy
-                            delegate: ItemDelegate {
-                                id: root
+                            delegate: Rectangle {
                                 readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                 width: parent.width - Marmot.Units.largeSpacing*4
+                                implicitHeight: itemDelegate.implicitHeight
                                 x: Marmot.Units.largeSpacing*2
-                                contentItem: Item {
-                                    implicitWidth: layout.implicitWidth
-                                    implicitHeight: layout.implicitHeight
-                                    ColumnLayout {
-                                        id: layout
-                                        anchors {
-                                            left: parent.left
-                                            right: parent.right
-                                        }
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Label {
-                                                Layout.fillWidth: true
-                                                text: name
-                                                elide: Text.ElideRight
-                                                wrapMode: Text.Wrap
-                                                font.pointSize: Math.round(application.font.pointSize*1.30)
+                                color: Marmot.Theme.base
+                                ItemDelegate {
+                                    id: itemDelegate
+                                    anchors.fill: parent
+                                    contentItem: Item {
+                                        implicitWidth: layout.implicitWidth
+                                        implicitHeight: layout.implicitHeight
+                                        ColumnLayout {
+                                            id: layout
+                                            anchors {
+                                                left: parent.left
+                                                right: parent.right
                                             }
-                                            CustomToolButton {
-                                                Layout.alignment: Qt.AlignTop
-                                                icon.name: "overflow-menu"
-                                                checked: menu.visible
-                                                onClicked: menu.visible ? menu.close() : menu.popup(0, height)
-                                                Menu {
-                                                    id: menu
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                Label {
+                                                    Layout.fillWidth: true
+                                                    text: name
+                                                    elide: Text.ElideRight
+                                                    wrapMode: Text.Wrap
+                                                    font.pointSize: Math.round(application.font.pointSize*1.30)
+                                                }
+                                                CustomToolButton {
+                                                    Layout.alignment: Qt.AlignTop
+                                                    icon.name: "overflow-menu"
+                                                    checked: menu.visible
+                                                    onClicked: menu.visible ? menu.close() : menu.popup(0, height)
+                                                    Menu {
+                                                        id: menu
 
-                                                    MenuItem {
-                                                        action: Action {
-                                                            icon.name: "document-edit"
-                                                            text: qsTr("Edit file")
-                                                            onTriggered: {
-                                                                if (application.activeFile === file) {
-                                                                    application.activeFile = null
-                                                                } else {
-                                                                    application.activeFile = file
+                                                        MenuItem {
+                                                            action: Action {
+                                                                icon.name: "document-edit"
+                                                                text: qsTr("Edit file")
+                                                                onTriggered: {
+                                                                    if (application.activeFile === file) {
+                                                                        application.activeFile = null
+                                                                    } else {
+                                                                        application.activeFile = file
+                                                                    }
                                                                 }
                                                             }
                                                         }
-                                                    }
-                                                    MenuItem {
-                                                        action: Action {
-                                                            icon.name: "document-close"
-                                                            text: qsTr("Close file")
-                                                            onTriggered: application.removeFile(proxy.sourceIndex(index))
+                                                        MenuItem {
+                                                            action: Action {
+                                                                icon.name: "document-close"
+                                                                text: qsTr("Close file")
+                                                                onTriggered: application.removeFile(proxy.sourceIndex(index))
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
-                                        Separator {
-                                            Layout.fillWidth: true
-                                        }
-                                        Label {
-                                            Layout.fillWidth: true
-                                            text: file ? qsTr("Distance: ")+(file.distance3D/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+file.climb.toFixed(0)+" m" : ""
-                                        }
-                                        Marmot.Chart {
-                                            Layout.fillWidth: true
-                                            implicitHeight: 3*Marmot.Units.gridUnit*Marmot.Units.devicePixelRatio
-                                            Component.onCompleted: {
-                                                for (var i = 0; i < file.tracks.length; ++i) {
-                                                    createSeries(file.tracks[i])
+                                            Separator {
+                                                Layout.fillWidth: true
+                                            }
+                                            Label {
+                                                Layout.fillWidth: true
+                                                text: file ? qsTr("Distance: ")+(file.distance3D/1000.0).toFixed(2)+" km | "+qsTr("Climb: ")+file.climb.toFixed(0)+" m" : ""
+                                            }
+                                            Marmot.Chart {
+                                                Layout.fillWidth: true
+                                                implicitHeight: 3*Marmot.Units.gridUnit*Marmot.Units.devicePixelRatio
+                                                Component.onCompleted: {
+                                                    for (var i = 0; i < file.tracks.length; ++i) {
+                                                        createSeries(file.tracks[i])
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                    highlighted: application.activeFile === file
+                                    onClicked: application.fitToTrack(proxy.sourceIndex(index))
                                 }
-                                highlighted: application.activeFile === file
-                                onClicked: application.fitToTrack(proxy.sourceIndex(index))
                                 layer.enabled: true
                                 layer.effect: DropShadow {
                                     cached: true
@@ -270,7 +277,6 @@ Drawer {
                                     samples: 25
                                     color: Qt.rgba(0, 0, 0, 0.5)
                                 }
-
                             }
                         }
                     }
@@ -284,6 +290,8 @@ Drawer {
                             color: Marmot.Theme.base
                         }
                         ListView {
+                            clip: true
+                            boundsBehavior: Flickable.StopAtBounds
                             model: proxy
                             delegate: ColumnLayout {
                                 anchors {
@@ -453,8 +461,8 @@ Drawer {
                     Layout.fillHeight: true
 
                     ListView {
-                        id: searchResultsList
-
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
                         model: searchModel
                         delegate: ColumnLayout {
                             anchors {

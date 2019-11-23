@@ -27,6 +27,7 @@ Button {
 
     icon.width: iconSize
     icon.height: iconSize
+    implicitWidth: implicitHeight
     display: Button.IconOnly
     onReleased: focus = false
 
