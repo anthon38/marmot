@@ -20,10 +20,8 @@
 #include "track.h"
 
 #include <QFontInfo>
-#include <QGeoCoordinate>
 #include <QtMath>
 #include <QDateTime>
-#include <QDebug>
 
 #include <algorithm>
 
@@ -36,13 +34,7 @@ Track::Track(QObject *parent)
     , m_distance3D(0.0)
     , m_distance2D(0.0)
 {
-//    qDebug()<<"created";
 }
-
-//Track::~Track()
-//{
-//    qDebug()<<"destroyed";
-//}
 
 QString Track::statistics() const
 {

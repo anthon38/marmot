@@ -27,7 +27,6 @@
 #include <QGeoCoordinate>
 #include <QGeoRectangle>
 #include <QColor>
-//#include <QMetaType>
 
 class Track : public QObject
 {
@@ -48,7 +47,6 @@ class Track : public QObject
 
 public:
     explicit Track(QObject *parent = nullptr);
-//    ~Track();
     QString name() const {return m_name;}
     void setName(const QString &name) {m_name = name;}
     QString description() const {return m_description;}
@@ -110,6 +108,5 @@ private:
     QVector<QString> m_timeStamps;
     QColor m_color;
 };
-//Q_DECLARE_METATYPE(Line)
 
 #endif // TRACK_H
