@@ -20,7 +20,9 @@
 #ifndef TRACK_H
 #define TRACK_H
 
+#include <QObject>
 #include <QString>
+#include <QVariant>
 #include <QList>
 #include <QGeoCoordinate>
 #include <QGeoRectangle>
