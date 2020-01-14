@@ -294,15 +294,14 @@ Drawer {
                             boundsBehavior: Flickable.StopAtBounds
                             model: proxy
                             delegate: ColumnLayout {
+                                readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                 anchors {
                                     left: parent.left
                                     right: parent.right
                                 }
                                 spacing: -separator.height
-
                                 ItemDelegate {
                                     id: itemDelegate
-                                    readonly property var file: filesModel.get(proxy.sourceIndex(index))
                                     Layout.fillWidth: true
                                     implicitHeight: buttonsRow.implicitHeight + 2*padding
 
