@@ -154,7 +154,9 @@ Drawer {
                         }
                         Connections {
                             target: filesModel
-                            onCountChanged: if (filesModel.count == 0) modelFilterField.clear()
+                            function onCountChanged() {
+                                if (filesModel.count == 0) modelFilterField.clear()
+                            }
                         }
                     }
                     CustomToolButton {
