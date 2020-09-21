@@ -292,7 +292,7 @@ ApplicationWindow {
                     }
                     Connections {
                         target: deleteShortcut
-                        onActivated: if (isSelected) remove()
+                        function onActivated() {if (isSelected) remove()}
                     }
                     function remove() {
                         modelData.removePoint(index)
