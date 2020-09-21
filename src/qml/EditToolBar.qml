@@ -98,7 +98,13 @@ ToolBar {
         CustomToolButton {
             tooltipText: qsTr("Exit edit mode")
             icon.name: "window-close-symbolic"
-            onClicked: application.activeFile = null
+            onClicked: {
+                navigateButton.checked = true
+                deletingPoint = false
+                deletingZone = false
+                movingPoint = false
+                application.activeFile = null
+            }
         }
     }
 }
