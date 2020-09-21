@@ -27,8 +27,8 @@ Item {
     implicitHeight: mainLayout.height
 
     function saveSettings() {
-        Settings.setValue("providersUseEmbedded", tilesembeddedButton.checked)
-        Settings.setValue("providersUseStdPath", tilesstdpathButton.checked)
+        Marmot.Settings.setValue("providersUseEmbedded", tilesembeddedButton.checked)
+        Marmot.Settings.setValue("providersUseStdPath", tilesstdpathButton.checked)
     }
 
     Component.onCompleted: {
