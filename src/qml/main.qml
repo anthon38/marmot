@@ -33,11 +33,22 @@ ApplicationWindow {
     property var activeFile: null
 
     visible: true
-    visibility: Window.Maximized
-    width: 450*Marmot.Units.devicePixelRatio
-    height: 300*Marmot.Units.devicePixelRatio
 
-    Component.onCompleted: { if (Qt.application.arguments.length > 1) delayedLoading.start() }
+    Component.onCompleted: {
+        // load settings
+        visibility = Number.fromLocaleString(Marmot.Settings.value("visibility", Window.Windowed))
+        width = Marmot.Settings.value("width", 450*Marmot.Units.devicePixelRatio)
+        height = Marmot.Settings.value("height", 300*Marmot.Units.devicePixelRatio)
+        // load files if any
+        if (Qt.application.arguments.length > 1) delayedLoading.start()
+    }
+
+    onClosing: {
+        // save settings
+        Marmot.Settings.setValue("visibility", visibility)
+        Marmot.Settings.setValue("width", width)
+        Marmot.Settings.setValue("height", height)
+    }
 
     Timer {
         id: delayedLoading
