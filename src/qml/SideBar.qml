@@ -79,7 +79,7 @@ Drawer {
                 Dialog {
                     id: popup
 
-                    parent: Overlay.overlay
+                    parent: application.contentItem
                     closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
                     modal: true
                     title: qsTr("Settings")
