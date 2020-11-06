@@ -1,6 +1,6 @@
 TARGET = marmot
 QT += qml quick positioning quickcontrols2 widgets
-CONFIG += c++11
+CONFIG += c++11 qtquickcompiler
 
 HEADERS += \
     src/file.h \
