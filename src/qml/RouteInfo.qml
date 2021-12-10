@@ -21,8 +21,6 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import Marmot 1.0 as Marmot
 
-import Marmot 1.0
-
 BackGround {
     id: routeInfoItem
 
@@ -48,12 +46,12 @@ BackGround {
         }
     ]
 
-    FilesModel {
+    Marmot.FilesModel {
         id: fileModel
     }
 
     Component.onCompleted: {
-        file = Qt.createQmlObject('import Marmot 1.0; File {}', routeInfoItem)
+        file = Qt.createQmlObject('import Marmot 1.0 as Marmot; Marmot.File {}', routeInfoItem)
         file.addTrack()
 //        file.tracks[0].color = "blue"
         fileModel.append(file)
