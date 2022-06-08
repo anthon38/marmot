@@ -123,12 +123,12 @@ BackGround {
     ProfileChart {
         id: altitudeProfile
 
+        width: 20*Marmot.Units.gridUnit
+        height: 10*Marmot.Units.gridUnit
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 0
-        width: 200*Marmot.Units.devicePixelRatio
-        height: 100*Marmot.Units.devicePixelRatio
         antialiasing: true
         background.color: "transparent"
         background.border.color: "transparent"

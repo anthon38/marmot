@@ -27,7 +27,7 @@ MapPolyline {
 
     path: track.path
     line.color: track.color
-    line.width: 5*Marmot.Units.devicePixelRatio
+    line.width: Marmot.Units.gridUnit*0.5
 
     MouseArea {
         anchors.fill: parent

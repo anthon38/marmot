@@ -22,8 +22,6 @@ import QtQuick.Layouts 1.3
 import Marmot 1.0 as Marmot
 
 Rectangle {
-    height: Math.floor(Marmot.Units.devicePixelRatio)
-    width: Math.floor(Marmot.Units.devicePixelRatio)
     Layout.preferredWidth: Math.floor(Marmot.Units.devicePixelRatio)
     Layout.preferredHeight: Math.floor(Marmot.Units.devicePixelRatio)
     color: Qt.tint(Marmot.Theme.text, Qt.rgba(Marmot.Theme.window.r, Marmot.Theme.window.g, Marmot.Theme.window.b, 0.8))

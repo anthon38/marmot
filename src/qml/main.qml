@@ -185,6 +185,8 @@ ApplicationWindow {
         onCopyrightLinkActivated: Qt.openUrlExternally(link)
         activeMapType: supportedMapTypes[6]
 
+        Component.onCompleted: centerMap()
+
         MouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -527,8 +529,8 @@ ApplicationWindow {
         anchors.top: map.top
         anchors.right: map.right
         anchors.margins: Marmot.Units.largeSpacing
-        width: 200*Marmot.Units.devicePixelRatio
-        height: 100*Marmot.Units.devicePixelRatio
+        width: 20*Marmot.Units.gridUnit
+        height: 10*Marmot.Units.gridUnit
         visible: count > 0
 
         model: filesModel
