@@ -186,6 +186,7 @@ Drawer {
                             color: Marmot.Theme.base
                         }
                         ListView {
+                            id: listView
                             spacing: Marmot.Units.largeSpacing*2
                             topMargin: spacing
                             bottomMargin: spacing
@@ -194,7 +195,7 @@ Drawer {
                             model: proxy
                             delegate: Rectangle {
                                 readonly property var file: filesModel.get(proxy.sourceIndex(index))
-                                width: parent.width - Marmot.Units.largeSpacing*4
+                                width: listView.width - Marmot.Units.largeSpacing*4
                                 implicitHeight: itemDelegate.implicitHeight
                                 x: Marmot.Units.largeSpacing*2
                                 color: Marmot.Theme.base

@@ -18,6 +18,7 @@
  *************************************************************************/
 
 #include <QApplication>
+#include <QPalette>
 #include <QIcon>
 #include <QTranslator>
 #include <QSurfaceFormat>

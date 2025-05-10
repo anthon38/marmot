@@ -21,7 +21,7 @@ import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.3
 import QtPositioning 5.5
-import QtLocation 5.13
+import QtLocation 5.14
 import QtQuick.Layouts 1.3
 import QtQml 2.13
 import Marmot 1.0 as Marmot
@@ -39,8 +39,7 @@ ApplicationWindow {
         visibility = Number.fromLocaleString(Marmot.Settings.value("visibility", Window.Windowed))
         width = Marmot.Settings.value("width", 450*Marmot.Units.devicePixelRatio)
         height = Marmot.Settings.value("height", 300*Marmot.Units.devicePixelRatio)
-        // load files if any
-        if (Qt.application.arguments.length > 1) delayedLoading.start()
+        delayedLoading.start()
     }
 
     onClosing: {
@@ -53,7 +52,15 @@ ApplicationWindow {
     Timer {
         id: delayedLoading
         interval: 1
-        onTriggered: { var files = Qt.application.arguments.slice(); files.shift(); open(files) }
+        onTriggered: {
+            scaleIndicator.update()
+            // load files if any
+            if (Qt.application.arguments.length > 1) {
+                var files = Qt.application.arguments.slice()
+                files.shift()
+                open(files)
+            }
+        }
     }
 
     PositionSource {
@@ -186,6 +193,9 @@ ApplicationWindow {
         activeMapType: supportedMapTypes[6]
 
         Component.onCompleted: centerMap()
+
+        onZoomLevelChanged: scaleIndicator.update()
+        onCenterChanged: scaleIndicator.update()
 
         MouseArea {
             anchors.fill: parent
@@ -323,7 +333,7 @@ ApplicationWindow {
         id: zoneSelection
         z: 9
         property var region: QtPositioning.rectangle(topLeft, bottomRight)
-        property var origin: Qt.point(-1, -1)
+        property point origin: Qt.point(-1, -1)
     }
 
     EditToolBar {
@@ -359,7 +369,6 @@ ApplicationWindow {
                 var polyLine = Qt.createComponent("PolyLine.qml").createObject(map, {track: file.tracks[i]})
                 polyLine.objectName = file.tracks[i].objectName+"_polyline"
                 map.addMapItem(polyLine)
-
                 profileChart.createSeries(file.tracks[i])
             }
             // Points of interest
@@ -521,6 +530,55 @@ ApplicationWindow {
             } else {
                centerMap()
             }
+        }
+    }
+
+    Label {
+        id: scaleIndicator
+        padding: Marmot.Units.smallSpacing
+        anchors.right: fitToViewButton.left
+        anchors.bottom: parent.bottom
+        anchors.margins: Marmot.Units.largeSpacing
+
+        width: Marmot.Units.gridUnit*15
+
+        background: BackGround {}
+
+        horizontalAlignment: Text.AlignHCenter
+
+        function update() {
+            var leftPoint = map.toCoordinate(Qt.point(map.x, map.y))
+            var rightPoint = map.toCoordinate(Qt.point(map.x+(rightMark.x-leftMark.x), map.y))
+            var distance = leftPoint.distanceTo(rightPoint)
+            text = distance > 1000 ? (distance/1000.0).toFixed(1)+" km" : distance.toFixed(0)+" m"
+        }
+
+        Rectangle {
+            id: leftMark
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: Marmot.Units.smallSpacing
+
+            height: parent.height
+            width: Marmot.Units.smallSpacing
+            color: Marmot.Theme.text
+        }
+
+        Rectangle {
+            id: rightMark
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: Marmot.Units.smallSpacing
+
+            height: parent.height
+            width: Marmot.Units.smallSpacing
+            color: Marmot.Theme.text
+        }
+
+        MouseArea {
+            anchors.fill: parent
         }
     }
 

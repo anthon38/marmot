@@ -23,8 +23,8 @@ import Marmot 1.0 as Marmot
 
 MapPolyline {
     id: polyLineItem
-    property var track: null
 
+    property var track: null
     path: track.path
     line.color: track.color
     line.width: Marmot.Units.gridUnit*0.5
