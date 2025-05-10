@@ -17,11 +17,11 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.13
-import QtQuick.Controls 2.13
-import QtQuick.Layouts 1.3
-import QtLocation 5.13
-import QtGraphicalEffects 1.13
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+import QtLocation 6.9
+// import QtGraphicalEffects 1.13
 import Marmot 1.0 as Marmot
 
 Drawer {
@@ -30,30 +30,30 @@ Drawer {
     closePolicy: Popup.CloseOnEscape | Popup.NoAutoClose
     modal: false
 
-    LinearGradient {
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.right
-        }
-        width: 1.5*Marmot.Units.smallSpacing
-        start: Qt.point(0, 0)
-        end: Qt.point(width, 0)
-        gradient: Gradient {
-            GradientStop {
-                position: 0.0
-                color: Qt.rgba(0, 0, 0, 0.5)
-            }
-            GradientStop {
-                position: 0.3
-                color: Qt.rgba(0, 0, 0, 0.3)
-            }
-            GradientStop {
-                position: 1.0
-                color:  "transparent"
-            }
-        }
-    }
+    // LinearGradient {
+    //     anchors {
+    //         top: parent.top
+    //         bottom: parent.bottom
+    //         left: parent.right
+    //     }
+    //     width: 1.5*Marmot.Units.smallSpacing
+    //     start: Qt.point(0, 0)
+    //     end: Qt.point(width, 0)
+    //     gradient: Gradient {
+    //         GradientStop {
+    //             position: 0.0
+    //             color: Qt.rgba(0, 0, 0, 0.5)
+    //         }
+    //         GradientStop {
+    //             position: 0.3
+    //             color: Qt.rgba(0, 0, 0, 0.3)
+    //         }
+    //         GradientStop {
+    //             position: 1.0
+    //             color:  "transparent"
+    //         }
+    //     }
+    // }
 
     ColumnLayout {
         anchors.fill: parent
@@ -115,7 +115,7 @@ Drawer {
             Layout.fillHeight: true
 
             currentIndex: bar.currentIndex
-            onCurrentIndexChanged: bar.currentIndex = currentIndex
+            onCurrentIndexChanged: (index) => bar.currentIndex = index
 
             ColumnLayout {
                 spacing: 0
@@ -132,30 +132,15 @@ Drawer {
                     }
                     TextField {
                         id: modelFilterField
-
-                        Layout.fillWidth: true
-                        rightPadding: clearFilterButton.visible ? clearFilterButton.width : padding
-
-                        font.italic: text.length === 0
-                        placeholderText: qsTr("Filter...")
-                        enabled: filesModel.count > 0
-                        onTextChanged: proxy.setFilterFixedString(text)
+                        onTextChanged: (text) => proxy.setFilterFixedString(text)
                         IconButton {
                             id: clearFilterButton
-                            height: parent.height
-                            anchors {
-                                right: parent.right
-                                verticalCenter: parent.verticalCenter
-                            }
-                            visible: modelFilterField.text !== ""
-                            icon.name: "edit-clear"
-
                             onClicked: modelFilterField.clear()
-                        }
-                        Connections {
-                            target: filesModel
-                            function onCountChanged() {
-                                if (filesModel.count == 0) modelFilterField.clear()
+                            Connections {
+                                target: filesModel
+                                function onCountChanged() {
+                                    if (filesModel.count === 0) modelFilterField.clear()
+                                }
                             }
                         }
                     }
@@ -224,7 +209,7 @@ Drawer {
                                                     Layout.alignment: Qt.AlignTop
                                                     icon.name: "overflow-menu"
                                                     checked: menu.visible
-                                                    onClicked: menu.visible ? menu.close() : menu.popup(0, height)
+                                                    onClicked: () => menu.visible ? menu.close() : menu.popup(0, height)
                                                     Menu {
                                                         id: menu
 
@@ -272,14 +257,14 @@ Drawer {
                                     highlighted: application.activeFile === file
                                     onClicked: application.fitToTrack(proxy.sourceIndex(index))
                                 }
-                                layer.enabled: true
-                                layer.effect: DropShadow {
-                                    cached: true
-                                    verticalOffset: 1
-                                    radius: 12
-                                    samples: 25
-                                    color: Qt.rgba(0, 0, 0, 0.5)
-                                }
+                                // layer.enabled: true
+                                // layer.effect: DropShadow {
+                                //     cached: true
+                                //     verticalOffset: 1
+                                //     radius: 12
+                                //     samples: 25
+                                //     color: Qt.rgba(0, 0, 0, 0.5)
+                                // }
                             }
                         }
                     }
@@ -353,10 +338,10 @@ Drawer {
                     Layout.fillHeight: true
                     initialItem: useCardView ? cardViewComponent : listViewComponent
                     onUseCardViewChanged: {
-                        if (depth == 1) {
+                        if (depth === 1) {
                             // we had one page so we push the other
                             push(useCardView ? cardViewComponent : listViewComponent, StackView.Immediate)
-                        } else if (depth == 2){
+                        } else if (depth === 2){
                             // we pop the stack
                             pop(StackView.Immediate)
                         }
@@ -430,7 +415,7 @@ Drawer {
                         icon.name: "internet-services"
                         tooltipText: qsTr("Provider...")
                         checked: menu.visible
-                        onClicked: menu.visible ? menu.close() : menu.popup(0, height)
+                        onClicked: () => menu.visible ? menu.close() : menu.popup(0, height)
                         Menu {
                             id: menu
                             padding: Marmot.Units.smallSpacing

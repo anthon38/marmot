@@ -18,19 +18,20 @@
  *************************************************************************/
 
 import QtQuick 2.0
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs 6.2
+import QtCore
 
 FileDialog {
     property var file: null
     id: fileDialog
     title: qsTr("Save as...")
-    folder: shortcuts.home
+    currentFolder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
     defaultSuffix: "gpx"
-    selectExisting: false
+    fileMode: FileDialog.SaveFile
     nameFilters: [ qsTr("GPX files (*.gpx)"), qsTr("All files (*)")]
     onAccepted: {
         if (file)
-            file.exportToGpx(fileDialog.fileUrl)
+            file.exportToGpx(fileDialog.selectedFile)
         fileDialog.destroy()
     }
     onRejected: fileDialog.destroy()

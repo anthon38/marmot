@@ -18,7 +18,7 @@
  *************************************************************************/
 
 import QtQuick 2.0
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.15
 import Marmot 1.0 as Marmot
 
 BackGround {

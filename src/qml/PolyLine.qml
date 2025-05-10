@@ -17,8 +17,8 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.0
-import QtLocation 5.13
+import QtQuick 2.15
+import QtLocation 6.9
 import Marmot 1.0 as Marmot
 
 MapPolyline {
@@ -32,7 +32,7 @@ MapPolyline {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onClicked: {
+        onClicked: (mouse) => {
             if (mouse.button == Qt.RightButton) {
                 map.addMapItem(trackInfoMapItem)
                 trackInfoItem.text = "<center><i>"+track.name+"</i></center>"+track.statistics
@@ -41,7 +41,7 @@ MapPolyline {
                 trackInfoMapItem.anchorPoint.y = trackInfoItem.height
             }
         }
-        onDoubleClicked: {
+        onDoubleClicked: (mouse) => {
             if (mouse.button == Qt.LeftButton) {
                 map.fitViewportToGeoShape(track.boundingBox, 200)
             }

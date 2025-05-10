@@ -18,7 +18,7 @@
  *************************************************************************/
 
 import QtQuick 2.7
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
 import Marmot 1.0 as Marmot
 

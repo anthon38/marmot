@@ -19,11 +19,12 @@
 
 import QtQuick 2.7
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.3
-import QtPositioning 5.5
-import QtLocation 5.14
+import QtQuick.Controls 2.15
+import QtPositioning 6.9
+import QtLocation 6.9
 import QtQuick.Layouts 1.3
 import QtQml 2.13
+import org.kde.kirigami 2.15 as Kirigami
 import Marmot 1.0 as Marmot
 
 ApplicationWindow {
@@ -101,12 +102,15 @@ ApplicationWindow {
 
     RouteQuery {
         id: aQuery
-        travelModes: RouteQuery.PedestrianTravel
-        routeOptimizations: RouteQuery.ShortestRoute
-        maneuverDetail: RouteQuery.NoManeuvers
         onWaypointsChanged: {
             if (waypoints.length < 2) // not enough waypoints to make a query, the model is not updated so we have to do it manually
                 routeModel.reset()
+        }
+        Component.onCompleted: {
+            // WORKAROUND...
+            travelModes = RouteQuery.PedestrianTravel
+            routeOptimizations = RouteQuery.ShortestRoute
+            maneuverDetail = RouteQuery.NoManeuvers
         }
     }
 
@@ -189,7 +193,7 @@ ApplicationWindow {
 
         plugin: osmPlugin
         zoomLevel: 10
-        onCopyrightLinkActivated: Qt.openUrlExternally(link)
+        onCopyrightLinkActivated: (link) => Qt.openUrlExternally(link)
         activeMapType: supportedMapTypes[6]
 
         Component.onCompleted: centerMap()
@@ -204,7 +208,31 @@ ApplicationWindow {
                       || (poiGeocodeModel.status == GeocodeModel.Loading)
                          ? Qt.BusyCursor : Qt.ArrowCursor
             enabled: (routeModel.status != RouteModel.Loading) && (poiGeocodeModel.status != GeocodeModel.Loading)
-            onClicked: {
+            property real lastX: 0
+            property real lastY: 0
+
+            onWheel: (wheel) => {
+                var zoomFactor = wheel.angleDelta.y > 0 ? 1.1 : 0.9
+                map.zoomLevel = Math.log2(Math.pow(2, map.zoomLevel) * zoomFactor)
+            }
+            onPositionChanged: (mouse) => {
+                if (pressed && !plotRouteButton.checked && !editToolBar.deletingZone) {
+                    var dx = Math.round(lastX - mouse.x)
+                    var dy = Math.round(lastY - mouse.y)
+                    map.pan(dx, dy)
+                    lastX = mouse.x
+                    lastY = mouse.y
+                }
+                if (editToolBar.deletingZone) {
+                    var xMin = Math.min(zoneSelection.origin.x, mouse.x)
+                    var xMax = Math.max(zoneSelection.origin.x, mouse.x)
+                    var yMin = Math.min(zoneSelection.origin.y, mouse.y)
+                    var yMax = Math.max(zoneSelection.origin.y, mouse.y)
+                    zoneSelection.topLeft = map.toCoordinate(Qt.point(xMin, yMin))
+                    zoneSelection.bottomRight = map.toCoordinate(Qt.point(xMax, yMax))
+                }
+            }
+            onClicked: (mouse) => {
                 map.removeMapItem(trackInfoMapItem)
                 if (plotRouteButton.checked) {
                     if (mouse.button == Qt.LeftButton) {
@@ -222,24 +250,16 @@ ApplicationWindow {
                     }
                 }
             }
-            onPressed: {
+            onPressed: (mouse) => {
+                lastX = mouse.x
+                lastY = mouse.y
                 if (editToolBar.deletingZone) {
                     map.gesture.enabled = false
                     zoneSelection.origin = Qt.point(mouse.x, mouse.y)
                     map.addMapItem(zoneSelection)
                 }
             }
-            onPositionChanged: {
-                if (editToolBar.deletingZone) {
-                    var xMin = Math.min(zoneSelection.origin.x, mouse.x)
-                    var xMax = Math.max(zoneSelection.origin.x, mouse.x)
-                    var yMin = Math.min(zoneSelection.origin.y, mouse.y)
-                    var yMax = Math.max(zoneSelection.origin.y, mouse.y)
-                    zoneSelection.topLeft = map.toCoordinate(Qt.point(xMin, yMin))
-                    zoneSelection.bottomRight = map.toCoordinate(Qt.point(xMax, yMax))
-                }
-            }
-            onReleased: {
+            onReleased: (mouse) => {
                 if (editToolBar.deletingZone) {
                     map.gesture.enabled = true
                 }
@@ -362,7 +382,7 @@ ApplicationWindow {
     Marmot.FilesModel {
         id: filesModel
 
-        onFileAppened: {
+        onFileAppened: (file) => {
             map.removeMapItem(trackInfoMapItem)
             // PolyLines
             for (var i = 0; i < file.tracks.length; ++i) {
@@ -379,7 +399,7 @@ ApplicationWindow {
             }
         }
 
-        onFileRemoved: {
+        onFileRemoved: (file) => {
             map.removeMapItem(trackInfoMapItem)
             var itemsToRemove = []
             for (var i = 0; i < file.tracks.length; ++i) {
@@ -526,9 +546,9 @@ ApplicationWindow {
 
         onClicked: {
             if (map.mapItems.length > 0) {
-                   map.fitViewportToVisibleMapItems()
+                map.fitViewportToVisibleMapItems()
             } else {
-               centerMap()
+                centerMap()
             }
         }
     }
@@ -605,9 +625,11 @@ ApplicationWindow {
     DropArea {
         property var supportedExt: ["gpx", "kml"]
         anchors.fill: parent
-        onEntered: {
+
+        onEntered: (drag) => {
             for (var i = 0; i < drag.urls.length; ++i) {
-                var extension = drag.urls[i].split('.').pop();
+                var url = drag.urls[i].toString()
+                var extension = url.split('.').pop().toLowerCase()
                 if (supportedExt.includes(extension)) {
                     drag.accepted = true
                     return
@@ -616,12 +638,13 @@ ApplicationWindow {
             drag.accepted = false
         }
 
-        onDropped: {
+        onDropped: (drop) => {
             var files = []
             for (var i = 0; i < drop.urls.length; ++i) {
-                var extension = drop.urls[i].split('.').pop();
+                var url = drop.urls[i].toString()
+                var extension = url.split('.').pop().toLowerCase()
                 if (supportedExt.includes(extension)) {
-                    files.push(drop.urls[i])
+                    files.push(url)
                 }
             }
             open(files)

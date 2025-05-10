@@ -17,8 +17,8 @@
  *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
  *************************************************************************/
 
-import QtQuick 2.0
-import QtLocation 5.13
+import QtQuick 2.15
+import QtLocation 6.9
 import Marmot 1.0 as Marmot
 
 MapQuickItem {

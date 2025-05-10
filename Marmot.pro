@@ -1,6 +1,12 @@
 TARGET = marmot
 QT += qml quick positioning quickcontrols2 widgets
-CONFIG += c++11 qtquickcompiler
+CONFIG += c++17 qtquickcompiler
+
+# Qt 6.9 specific
+QT_VERSION = 6.9
+greaterThan(QT_MAJOR_VERSION, 5) {
+    QT += core5compat
+}
 
 HEADERS += \
     src/file.h \

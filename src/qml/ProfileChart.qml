@@ -18,7 +18,7 @@
  *************************************************************************/
 
 import QtQuick 2.0
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.15
 import Marmot 1.0 as Marmot
 
 Item {
@@ -47,7 +47,7 @@ Item {
 
         onExtremaChanged: distanceRow.updateValues()
 
-        onTrackAdded: {
+        onTrackAdded: (track) => {
             var tooltip = Qt.createComponent("ChartTooltip.qml").createObject(profileChartItem)
             tooltipsMap[track.objectName] = tooltip
 
@@ -56,7 +56,7 @@ Item {
             positionMarkersMap[track.objectName] = positionMarker
         }
 
-        onTrackRemoved: {
+        onTrackRemoved: (trackName) => {
             tooltipsMap[trackName].destroy()
             delete tooltipsMap[trackName]
 
@@ -70,7 +70,7 @@ Item {
             hoverEnabled: true
             acceptedButtons: Qt.AllButtons
 
-            onPositionChanged: {
+            onPositionChanged: function(mouse) {
                 if (!model || !containsMouse)
                     return;
                 verticalBar.x = mouse.x-1 // for some reason there's a 1px shift
@@ -108,7 +108,7 @@ Item {
                 keys.forEach(function(key) {
                     tooltipsMap[key].visible = false
                     map.removeMapItem(positionMarkersMap[key])
-                  });
+                });
                 verticalBar.visible = false
             }
         }
