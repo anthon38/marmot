@@ -34,16 +34,16 @@ MapPolyline {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: (mouse) => {
             if (mouse.button == Qt.RightButton) {
-                map.addMapItem(trackInfoMapItem)
+                mapView.map.addMapItem(trackInfoMapItem)
                 trackInfoItem.text = "<center><i>"+track.name+"</i></center>"+track.statistics
-                trackInfoMapItem.coordinate = map.toCoordinate(Qt.point(mouse.x+polyLineItem.x, mouse.y+polyLineItem.y))
+                trackInfoMapItem.coordinate = mapView.map.toCoordinate(Qt.point(mouse.x+polyLineItem.x, mouse.y+polyLineItem.y))
                 trackInfoMapItem.anchorPoint.x = 0
                 trackInfoMapItem.anchorPoint.y = trackInfoItem.height
             }
         }
         onDoubleClicked: (mouse) => {
             if (mouse.button == Qt.LeftButton) {
-                map.fitViewportToGeoShape(track.boundingBox, 200)
+                mapView.map.fitViewportToGeoShape(track.boundingBox, 200)
             }
         }
     }

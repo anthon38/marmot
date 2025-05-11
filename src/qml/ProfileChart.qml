@@ -51,7 +51,7 @@ Item {
             var tooltip = Qt.createComponent("ChartTooltip.qml").createObject(profileChartItem)
             tooltipsMap[track.objectName] = tooltip
 
-            var positionMarker = Qt.createComponent("WayPointItem.qml").createObject(map, {z: 3})
+            var positionMarker = Qt.createComponent("WayPointItem.qml").createObject(mapView.map, {z: 3})
             positionMarker.color = track.color
             positionMarkersMap[track.objectName] = positionMarker
         }
@@ -86,7 +86,7 @@ Item {
                         var positionMarker = positionMarkersMap[track.objectName]
                         if (distance > track.distance2D) {
                             tooltip.visible = false
-                            map.removeMapItem(positionMarker)
+                            mapView.map.removeMapItem(positionMarker)
                             break
                         }
                         var coordinate = track.coordinateFromDistance(distance)
@@ -96,7 +96,7 @@ Item {
                         tooltip.y = chart.y+position.y-tooltip.height
                         tooltip.visible = true
                         positionMarker.coordinate = coordinate
-                        map.addMapItem(positionMarker)
+                        mapView.map.addMapItem(positionMarker)
                     }
                 }
             }
@@ -107,7 +107,7 @@ Item {
                 var keys = Object.keys(tooltipsMap) // both maps have the same keys
                 keys.forEach(function(key) {
                     tooltipsMap[key].visible = false
-                    map.removeMapItem(positionMarkersMap[key])
+                    mapView.map.removeMapItem(positionMarkersMap[key])
                 });
                 verticalBar.visible = false
             }

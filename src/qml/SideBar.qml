@@ -462,10 +462,10 @@ Drawer {
                                 text: address
                                 onClicked: {
                                     if (searchGeocodeModel.get(index).boundingBox.isValid) {
-                                        map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
+                                        mapView.map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
                                     } else if (searchGeocodeModel.get(index).coordinate.isValid) {
-                                        map.center = searchGeocodeModel.get(index).coordinate
-                                        map.zoomLevel = 16
+                                        mapView.map.center = searchGeocodeModel.get(index).coordinate
+                                        mapView.map.zoomLevel = 16
                                     }
                                 }
                             }

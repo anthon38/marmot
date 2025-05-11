@@ -79,8 +79,8 @@ ApplicationWindow {
     }
 
     function centerMap() {
-        map.center = currentLocation
-        map.zoomLevel = 10
+        mapView.map.center = currentLocation
+        mapView.map.zoomLevel = 10
     }
 
     Plugin {
@@ -181,8 +181,8 @@ ApplicationWindow {
         }
     }
 
-    Map {
-        id: map
+    MapView {
+        id: mapView
         anchors {
             top: parent.top
             bottom: parent.bottom
@@ -191,15 +191,15 @@ ApplicationWindow {
             leftMargin: -menuButton.anchors.leftMargin
         }
 
-        plugin: osmPlugin
-        zoomLevel: 10
-        onCopyrightLinkActivated: (link) => Qt.openUrlExternally(link)
-        activeMapType: supportedMapTypes[6]
+        map.plugin: osmPlugin
+        map.zoomLevel: 10
+        map.onCopyrightLinkActivated: (link) => Qt.openUrlExternally(link)
+        map.activeMapType: map.supportedMapTypes[6]
 
         Component.onCompleted: centerMap()
 
-        onZoomLevelChanged: scaleIndicator.update()
-        onCenterChanged: scaleIndicator.update()
+        map.onZoomLevelChanged: scaleIndicator.update()
+        map.onCenterChanged: scaleIndicator.update()
 
         MouseArea {
             anchors.fill: parent
@@ -208,38 +208,25 @@ ApplicationWindow {
                       || (poiGeocodeModel.status == GeocodeModel.Loading)
                          ? Qt.BusyCursor : Qt.ArrowCursor
             enabled: (routeModel.status != RouteModel.Loading) && (poiGeocodeModel.status != GeocodeModel.Loading)
-            property real lastX: 0
-            property real lastY: 0
 
-            onWheel: (wheel) => {
-                var zoomFactor = wheel.angleDelta.y > 0 ? 1.1 : 0.9
-                map.zoomLevel = Math.log2(Math.pow(2, map.zoomLevel) * zoomFactor)
-            }
             onPositionChanged: (mouse) => {
-                if (pressed && !plotRouteButton.checked && !editToolBar.deletingZone) {
-                    var dx = Math.round(lastX - mouse.x)
-                    var dy = Math.round(lastY - mouse.y)
-                    map.pan(dx, dy)
-                    lastX = mouse.x
-                    lastY = mouse.y
-                }
                 if (editToolBar.deletingZone) {
                     var xMin = Math.min(zoneSelection.origin.x, mouse.x)
                     var xMax = Math.max(zoneSelection.origin.x, mouse.x)
                     var yMin = Math.min(zoneSelection.origin.y, mouse.y)
                     var yMax = Math.max(zoneSelection.origin.y, mouse.y)
-                    zoneSelection.topLeft = map.toCoordinate(Qt.point(xMin, yMin))
-                    zoneSelection.bottomRight = map.toCoordinate(Qt.point(xMax, yMax))
+                    zoneSelection.topLeft = mapView.map.toCoordinate(Qt.point(xMin, yMin))
+                    zoneSelection.bottomRight = mapView.map.toCoordinate(Qt.point(xMax, yMax))
                 }
             }
             onClicked: (mouse) => {
-                map.removeMapItem(trackInfoMapItem)
+                mapView.map.removeMapItem(trackInfoMapItem)
                 if (plotRouteButton.checked) {
                     if (mouse.button == Qt.LeftButton) {
                         if (plotInfo.isAddingPoi) {
-                            poiGeocodeModel.query = map.toCoordinate(Qt.point(mouse.x, mouse.y))
+                            poiGeocodeModel.query = mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y))
                         } else {
-                            aQuery.addWaypoint(map.toCoordinate(Qt.point(mouse.x, mouse.y)))
+                            aQuery.addWaypoint(mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y)))
                         }
                     } else {
                         if (plotInfo.isAddingPoi) {
@@ -251,17 +238,15 @@ ApplicationWindow {
                 }
             }
             onPressed: (mouse) => {
-                lastX = mouse.x
-                lastY = mouse.y
                 if (editToolBar.deletingZone) {
-                    map.gesture.enabled = false
+                    mapView.map.gesture.enabled = false
                     zoneSelection.origin = Qt.point(mouse.x, mouse.y)
-                    map.addMapItem(zoneSelection)
+                    mapView.map.addMapItem(zoneSelection)
                 }
             }
             onReleased: (mouse) => {
                 if (editToolBar.deletingZone) {
-                    map.gesture.enabled = true
+                    mapView.map.gesture.enabled = true
                 }
             }
         }
@@ -277,15 +262,17 @@ ApplicationWindow {
                 opacity: 0.9
                 onRouteChanged: plotInfo.updateRoute()
             }
+            Component.onCompleted: mapView.map.addMapItemView(this)
         }
 
         MapItemView {
             z: 1
-            model:aQuery.waypoints
+            model: aQuery.waypoints
             delegate: WayPointItem {
                 coordinate: modelData
                 color: "blue"
             }
+            Component.onCompleted: mapView.map.addMapItemView(this)
         }
 
         MapItemView {
@@ -296,6 +283,7 @@ ApplicationWindow {
                 text: name
                 imageSource: "qrc:/images/pin_blue.svg"
             }
+            Component.onCompleted: mapView.map.addMapItemView(this)
         }
 
         Instantiator {
@@ -332,8 +320,8 @@ ApplicationWindow {
                     }
                 }
             }
-            onObjectAdded: map.addMapItemView(object)
-            onObjectRemoved: map.removeMapItemView(object)
+            onObjectAdded: mapView.map.addMapItemView(object)
+            onObjectRemoved: mapView.map.removeMapItemView(object)
         }
     }
 
@@ -361,16 +349,16 @@ ApplicationWindow {
         anchors {
             bottom: parent.top
             margins: Marmot.Units.largeSpacing
-            horizontalCenter: map.horizontalCenter
+            horizontalCenter: mapView.horizontalCenter
         }
         state: activeFile ? "visible" : ""
         Shortcut {
             id: deleteShortcut
             sequence: StandardKey.Delete
             context: Qt.ApplicationShortcut
-            onActivated: map.removeMapItem(zoneSelection)
+            onActivated: mapView.map.removeMapItem(zoneSelection)
         }
-        onDeletingZoneChanged: if (!deletingZone) map.removeMapItem(zoneSelection)
+        onDeletingZoneChanged: if (!deletingZone) mapView.map.removeMapItem(zoneSelection)
     }
 
     onActiveFileChanged: {
@@ -383,24 +371,24 @@ ApplicationWindow {
         id: filesModel
 
         onFileAppened: (file) => {
-            map.removeMapItem(trackInfoMapItem)
+            mapView.map.removeMapItem(trackInfoMapItem)
             // PolyLines
             for (var i = 0; i < file.tracks.length; ++i) {
-                var polyLine = Qt.createComponent("PolyLine.qml").createObject(map, {track: file.tracks[i]})
+                var polyLine = Qt.createComponent("PolyLine.qml").createObject(mapView, {track: file.tracks[i]})
                 polyLine.objectName = file.tracks[i].objectName+"_polyline"
-                map.addMapItem(polyLine)
+                mapView.map.addMapItem(polyLine)
                 profileChart.createSeries(file.tracks[i])
             }
             // Points of interest
             for (var j = 0; j < file.pois.length; ++j) {
-                var poi = Qt.createComponent("PoiMapItem.qml").createObject(map, {coordinate: file.pois[j].coordinate, text: file.pois[j].name})
+                var poi = Qt.createComponent("PoiMapItem.qml").createObject(mapView, {coordinate: file.pois[j].coordinate, text: file.pois[j].name})
                 poi.objectName = file.pois[j].objectName+"_marker"
-                map.addMapItemGroup(poi)
+                mapView.map.addMapItemGroup(poi)
             }
         }
 
         onFileRemoved: (file) => {
-            map.removeMapItem(trackInfoMapItem)
+            mapView.map.removeMapItem(trackInfoMapItem)
             var itemsToRemove = []
             for (var i = 0; i < file.tracks.length; ++i) {
                 itemsToRemove.push(file.tracks[i].objectName+"_polyline")
@@ -408,7 +396,7 @@ ApplicationWindow {
             for (var j = 0; j < file.pois.length; ++j) {
                 itemsToRemove.push(file.pois[j].objectName+"_marker")
             }
-            var items = map.children
+            var items = mapView.map.children
             for (var k = 0; k < items.length; ++k) {
                 if (itemsToRemove.includes(items[k].objectName)) {
                     items[k].destroy()
@@ -431,7 +419,7 @@ ApplicationWindow {
             }
         }
         aggregateStats.update()
-        map.fitViewportToVisibleMapItems()
+        mapView.map.fitViewportToVisibleMapItems()
     }
 
     function removeFile(index) {
@@ -446,7 +434,7 @@ ApplicationWindow {
     }
 
     function fitToTrack(index) {
-        map.fitViewportToGeoShape(filesModel.get(index).boundingBox, 200)
+        mapView.map.fitViewportToGeoShape(filesModel.get(index).boundingBox, 200)
     }
 
     SideBar {
@@ -474,7 +462,7 @@ ApplicationWindow {
         icon.name: "internet-services"
         tooltipText: qsTr("Open in OpenStreetMap")
 
-        onClicked: Qt.openUrlExternally("https://www.openstreetmap.org/#map="+map.zoomLevel+"/"+map.center.latitude+"/"+map.center.longitude)
+        onClicked: Qt.openUrlExternally("https://www.openstreetmap.org/#map="+mapView.map.zoomLevel+"/"+mapView.map.center.latitude+"/"+mapView.map.center.longitude)
     }
 
     CustomButton {
@@ -515,17 +503,17 @@ ApplicationWindow {
                 id: mapTypeRepeater
                 delegate: RadioButton {
                     text: modelData.name
-                    checked: map.activeMapType.name === modelData.name
-                    onClicked: map.activeMapType = modelData
+                    checked: mapView.map.activeMapType.name === modelData.name
+                    onClicked: mapView.map.activeMapType = modelData
                 }
             }
             Connections {
-                target: map
+                target: mapView.map
                 function onSupportedMapTypesChanged() {
                     var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.TerrainMap, MapType.PedestrianMap]
                     var availableMaps = []
-                    for (var i = 0; i < map.supportedMapTypes.length; ++i) {
-                        var type = map.supportedMapTypes[i]
+                    for (var i = 0; i < mapView.map.supportedMapTypes.length; ++i) {
+                        var type = mapView.map.supportedMapTypes[i]
                         if (supportedStyles.includes(type.style)) {
                             availableMaps.push(type)
                         }
@@ -545,8 +533,8 @@ ApplicationWindow {
         tooltipText: qsTr("Fit to view")
 
         onClicked: {
-            if (map.mapItems.length > 0) {
-                map.fitViewportToVisibleMapItems()
+            if (mapView.map.mapItems.length > 0) {
+                mapView.map.fitViewportToVisibleMapItems()
             } else {
                 centerMap()
             }
@@ -567,8 +555,8 @@ ApplicationWindow {
         horizontalAlignment: Text.AlignHCenter
 
         function update() {
-            var leftPoint = map.toCoordinate(Qt.point(map.x, map.y))
-            var rightPoint = map.toCoordinate(Qt.point(map.x+(rightMark.x-leftMark.x), map.y))
+            var leftPoint = mapView.map.toCoordinate(Qt.point(mapView.x, mapView.y))
+            var rightPoint = mapView.map.toCoordinate(Qt.point(mapView.x+(rightMark.x-leftMark.x), mapView.y))
             var distance = leftPoint.distanceTo(rightPoint)
             text = distance > 1000 ? (distance/1000.0).toFixed(1)+" km" : distance.toFixed(0)+" m"
         }
@@ -604,8 +592,8 @@ ApplicationWindow {
 
     ProfileChart {
         id: profileChart
-        anchors.top: map.top
-        anchors.right: map.right
+        anchors.top: mapView.top
+        anchors.right: mapView.right
         anchors.margins: Marmot.Units.largeSpacing
         width: 20*Marmot.Units.gridUnit
         height: 10*Marmot.Units.gridUnit
