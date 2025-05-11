@@ -208,6 +208,7 @@ ApplicationWindow {
                       || (poiGeocodeModel.status == GeocodeModel.Loading)
                          ? Qt.BusyCursor : Qt.ArrowCursor
             enabled: (routeModel.status != RouteModel.Loading) && (poiGeocodeModel.status != GeocodeModel.Loading)
+            propagateComposedEvents: true
 
             onPositionChanged: (mouse) => {
                 if (editToolBar.deletingZone) {
@@ -221,6 +222,10 @@ ApplicationWindow {
             }
             onClicked: (mouse) => {
                 mapView.map.removeMapItem(trackInfoMapItem)
+                if (!plotRouteButton.checked && !editToolBar.deletingZone) {
+                    mouse.accepted = false
+                    return
+                }
                 if (plotRouteButton.checked) {
                     if (mouse.button == Qt.LeftButton) {
                         if (plotInfo.isAddingPoi) {
