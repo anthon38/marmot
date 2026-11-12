@@ -64,61 +64,65 @@ Item {
             delete positionMarkersMap[trackName]
         }
 
-        MouseArea {
-            id: plotMouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.AllButtons
-
-            onPositionChanged: function(mouse) {
-                if (!model || !containsMouse)
-                    return;
-                verticalBar.x = mouse.x-1 // for some reason there's a 1px shift
-                verticalBar.visible = true
-                var i, j
-                var distance = chart.mapToDistance(mouse.x)
-                for (i = 0; i < model.count; ++i) {
-                    for (j = 0; j < model.get(i).tracks.length; ++j) {
-                        var track = model.get(i).tracks[j]
-                        if (track.length === 0)
-                            break
-                        var tooltip = tooltipsMap[track.objectName]
-                        var positionMarker = positionMarkersMap[track.objectName]
-                        if (distance > track.distance2D) {
-                            tooltip.visible = false
-                            positionMarker.visible = false
-                            break
-                        }
-                        var coordinate = track.coordinateFromDistance(distance)
-                        tooltip.text = coordinate.altitude.toFixed(0)
-                        var position = chart.mapToPosition(Qt.point(distance, coordinate.altitude))
-                        tooltip.x = chart.x+position.x
-                        tooltip.y = chart.y+position.y-tooltip.height
-                        tooltip.visible = true
-                        positionMarker.coordinate = coordinate
-                        positionMarker.visible = true
-                    }
-                }
-            }
-
-            onExited: {
-                if (!model)
-                    return;
-                var keys = Object.keys(tooltipsMap) // both maps have the same keys
-                keys.forEach(function(key) {
-                    tooltipsMap[key].visible = false
-                    positionMarkersMap[key].visible = false
-                });
-                verticalBar.visible = false
-            }
-        }
-
         Rectangle {
             id: verticalBar
             width: 1
             height: chart.height
             color: elevationLabel.color
             visible: false
+        }
+    }
+
+    // Covers the chart from above the tooltips: they show up under the pointer, and a
+    // tooltip which gets the hover (the Label of some styles handles it) takes it away
+    // from an area below it, which hides the tooltip, which gives the hover back...
+    MouseArea {
+        id: plotMouseArea
+        anchors.fill: chart
+        z: 1
+        hoverEnabled: true
+        acceptedButtons: Qt.AllButtons
+
+        onPositionChanged: function(mouse) {
+            if (!model || !containsMouse)
+                return;
+            verticalBar.x = mouse.x-1 // for some reason there's a 1px shift
+            verticalBar.visible = true
+            var i, j
+            var distance = chart.mapToDistance(mouse.x)
+            for (i = 0; i < model.count; ++i) {
+                for (j = 0; j < model.get(i).tracks.length; ++j) {
+                    var track = model.get(i).tracks[j]
+                    if (track.length === 0)
+                        break
+                    var tooltip = tooltipsMap[track.objectName]
+                    var positionMarker = positionMarkersMap[track.objectName]
+                    if (distance > track.distance2D) {
+                        tooltip.visible = false
+                        positionMarker.visible = false
+                        break
+                    }
+                    var coordinate = track.coordinateFromDistance(distance)
+                    tooltip.text = coordinate.altitude.toFixed(0)
+                    var position = chart.mapToPosition(Qt.point(distance, coordinate.altitude))
+                    tooltip.x = chart.x+position.x
+                    tooltip.y = chart.y+position.y-tooltip.height
+                    tooltip.visible = true
+                    positionMarker.coordinate = coordinate
+                    positionMarker.visible = true
+                }
+            }
+        }
+
+        onExited: {
+            if (!model)
+                return;
+            var keys = Object.keys(tooltipsMap) // both maps have the same keys
+            keys.forEach(function(key) {
+                tooltipsMap[key].visible = false
+                positionMarkersMap[key].visible = false
+            });
+            verticalBar.visible = false
         }
     }
 
