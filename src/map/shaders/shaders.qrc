@@ -2,6 +2,11 @@
     <qresource prefix="/shaders">
         <file>line.vert.qsb</file>
         <file>line.frag.qsb</file>
+        <file>line_data.vert.qsb</file>
+        <file>line_altitude.frag.qsb</file>
+        <file>line_dashed.frag.qsb</file>
+        <file>line_casing.frag.qsb</file>
+        <file>line_arrows.frag.qsb</file>
         <file>points.vert.qsb</file>
         <file>points.frag.qsb</file>
     </qresource>

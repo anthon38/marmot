@@ -21,6 +21,10 @@
 #include "map.h"
 #include "mapprojection.h"
 
+#include <QDateTime>
+#include <QFileInfo>
+#include <QHash>
+#include <QMutex>
 #include <QSGGeometry>
 #include <QSGGeometryNode>
 #include <QSGMaterial>
@@ -41,6 +45,10 @@ const int FullDetail = 1000;
 const double SimplifyTolerance = 0.35;
 // How far from a line or a point a position still hits it, in pixels.
 const double HitTolerance = 3.0;
+// How many times at most a fragment shader can draw a line.
+const int MaxPasses = 4;
+// The revision of the points of a track for which nothing was worked out.
+const quint64 NoRevision = ~quint64(0);
 // The renderer works out the area covered by a node from the positions of its vertices,
 // to tell if it can change the order in which nodes are drawn. It cannot know where these
 // geometries end up, so two unused vertices make it assume they cover everything.
@@ -50,6 +58,13 @@ struct LineVertex {
     float startX, startY;
     float endX, endY;
     float cornerX, cornerY;
+};
+
+// A vertex of the lines which have a fragment shader of their own.
+struct DataLineVertex {
+    LineVertex line;
+    float dataStart[4];
+    float dataEnd[4];
 };
 
 struct PointVertex {
@@ -65,6 +80,19 @@ const QSGGeometry::AttributeSet &lineAttributes()
         QSGGeometry::Attribute::createWithAttributeType(2, 2, QSGGeometry::FloatType, QSGGeometry::UnknownAttribute)
     };
     static const QSGGeometry::AttributeSet set = {3, sizeof(LineVertex), attributes};
+    return set;
+}
+
+const QSGGeometry::AttributeSet &dataLineAttributes()
+{
+    static const QSGGeometry::Attribute attributes[] = {
+        QSGGeometry::Attribute::createWithAttributeType(0, 2, QSGGeometry::FloatType, QSGGeometry::PositionAttribute),
+        QSGGeometry::Attribute::createWithAttributeType(1, 2, QSGGeometry::FloatType, QSGGeometry::UnknownAttribute),
+        QSGGeometry::Attribute::createWithAttributeType(2, 2, QSGGeometry::FloatType, QSGGeometry::UnknownAttribute),
+        QSGGeometry::Attribute::createWithAttributeType(3, 4, QSGGeometry::FloatType, QSGGeometry::UnknownAttribute),
+        QSGGeometry::Attribute::createWithAttributeType(4, 4, QSGGeometry::FloatType, QSGGeometry::UnknownAttribute)
+    };
+    static const QSGGeometry::AttributeSet set = {5, sizeof(DataLineVertex), attributes};
     return set;
 }
 
@@ -101,12 +129,26 @@ void writeQuadIndices(quint32 *indices, int quads)
     }
 }
 
-QSGGeometryNode *createNode(const QSGGeometry::AttributeSet &attributes, QSGMaterial *material)
+void writeVector(float *destination, const QVector4D &vector)
+{
+    destination[0] = vector.x();
+    destination[1] = vector.y();
+    destination[2] = vector.z();
+    destination[3] = vector.w();
+}
+
+QSGGeometry *createGeometry(const QSGGeometry::AttributeSet &attributes)
 {
     auto geometry = new QSGGeometry(attributes, 0, 0, QSGGeometry::UnsignedIntType);
     geometry->setDrawingMode(QSGGeometry::DrawTriangles);
     geometry->setVertexDataPattern(QSGGeometry::StaticPattern);
     geometry->setIndexDataPattern(QSGGeometry::StaticPattern);
+    return geometry;
+}
+
+QSGGeometryNode *createNode(const QSGGeometry::AttributeSet &attributes, QSGMaterial *material)
+{
+    auto geometry = createGeometry(attributes);
     auto node = new QSGGeometryNode;
     node->setGeometry(geometry);
     node->setMaterial(material);
@@ -137,27 +179,57 @@ public:
     float scale = 1.0f;
 };
 
+// The scene graph keeps one shader program per type of material, so there is
+// one type for the default fragment shader, and one for each of the other ones.
+QSGMaterialType *lineMaterialType(const QString &shaderKey)
+{
+    static QMutex mutex;
+    static QHash<QString, QSGMaterialType *> types;
+    QMutexLocker locker(&mutex);
+    QSGMaterialType *&type = types[shaderKey];
+    if (!type)
+        type = new QSGMaterialType;
+    return type;
+}
+
 class LineMaterial : public TrackMaterial
 {
 public:
-    QSGMaterialType *type() const override
+    // Without a file for the fragment shader, the default one draws the line.
+    LineMaterial(const QString &shaderFile, const QString &shaderKey)
+        : m_shaderFile(shaderFile)
+        , m_type(lineMaterialType(shaderKey))
     {
-        static QSGMaterialType type;
-        return &type;
     }
+
+    QSGMaterialType *type() const override {return m_type;}
     QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const override;
 
     QColor color;
+    QColor secondaryColor;
+    QVector4D parameters;
+    QVector4D dataMin;
+    QVector4D dataMax;
     float halfWidth = 1.0f;
+    float pass = 0.0f;
+
+private:
+    QString m_shaderFile;
+    QSGMaterialType *m_type;
 };
 
 class LineShader : public QSGMaterialShader
 {
 public:
-    LineShader()
+    explicit LineShader(const QString &fragmentShader)
     {
-        setShaderFileName(VertexStage, QStringLiteral(":/shaders/line.vert.qsb"));
-        setShaderFileName(FragmentStage, QStringLiteral(":/shaders/line.frag.qsb"));
+        if (fragmentShader.isEmpty()) {
+            setShaderFileName(VertexStage, QStringLiteral(":/shaders/line.vert.qsb"));
+            setShaderFileName(FragmentStage, QStringLiteral(":/shaders/line.frag.qsb"));
+        } else {
+            setShaderFileName(VertexStage, QStringLiteral(":/shaders/line_data.vert.qsb"));
+            setShaderFileName(FragmentStage, fragmentShader);
+        }
     }
 
     bool updateUniformData(RenderState &state, QSGMaterial *newMaterial, QSGMaterial *) override
@@ -166,30 +238,91 @@ public:
         struct {
             float matrix[16];
             float color[4];
+            float secondaryColor[4];
+            float parameters[4];
+            float dataMin[4];
+            float dataMax[4];
             float origin[2];
             float scale;
             float halfWidth;
+            float pass;
+            float opacity;
+            float padding[2];
         } uniforms;
         const auto material = static_cast<LineMaterial *>(newMaterial);
         const QMatrix4x4 matrix = state.combinedMatrix();
         std::memcpy(uniforms.matrix, matrix.constData(), sizeof(uniforms.matrix));
         writeColor(uniforms.color, material->color, state.opacity());
+        writeColor(uniforms.secondaryColor, material->secondaryColor, state.opacity());
+        writeVector(uniforms.parameters, material->parameters);
+        writeVector(uniforms.dataMin, material->dataMin);
+        writeVector(uniforms.dataMax, material->dataMax);
         uniforms.origin[0] = material->viewOrigin.x();
         uniforms.origin[1] = material->viewOrigin.y();
         uniforms.scale = material->scale;
         uniforms.halfWidth = material->halfWidth;
+        uniforms.pass = material->pass;
+        uniforms.opacity = state.opacity();
+        uniforms.padding[0] = uniforms.padding[1] = 0.0f;
 
+        // A fragment shader which is not one of ours may declare less than this.
         QByteArray *buffer = state.uniformData();
-        Q_ASSERT(size_t(buffer->size()) >= sizeof(uniforms));
-        std::memcpy(buffer->data(), &uniforms, sizeof(uniforms));
+        std::memcpy(buffer->data(), &uniforms, qMin(size_t(buffer->size()), sizeof(uniforms)));
         return true;
     }
 };
 
 QSGMaterialShader *LineMaterial::createShader(QSGRendererInterface::RenderMode) const
 {
-    return new LineShader;
+    return new LineShader(m_shaderFile);
 }
+
+// The node of a line: a geometry, drawn once for each pass of its fragment shader.
+class LineNode : public QSGNode
+{
+public:
+    LineNode(const QString &shaderFile, const QString &shaderKey, int passes)
+        : m_shaderKey(shaderKey)
+        , m_geometry(createGeometry(shaderFile.isEmpty() ? lineAttributes() : dataLineAttributes()))
+    {
+        for (int pass = 0; pass < passes; ++pass) {
+            auto material = new LineMaterial(shaderFile, shaderKey);
+            material->pass = float(pass);
+            auto node = new QSGGeometryNode;
+            node->setGeometry(m_geometry);
+            node->setMaterial(material);
+            node->setFlag(QSGNode::OwnsMaterial);
+            appendChildNode(node);
+        }
+    }
+
+    ~LineNode() override
+    {
+        // The geometry has to outlive the nodes which draw it.
+        while (QSGNode *child = firstChild())
+            delete child;
+        delete m_geometry;
+    }
+
+    QString shaderKey() const {return m_shaderKey;}
+    int passes() const {return childCount();}
+    QSGGeometry *geometry() const {return m_geometry;}
+
+    LineMaterial *material(int pass) const
+    {
+        return static_cast<LineMaterial *>(static_cast<QSGGeometryNode *>(childAtIndex(pass))->material());
+    }
+
+    void markAllDirty(QSGNode::DirtyState state)
+    {
+        for (QSGNode *child = firstChild(); child; child = child->nextSibling())
+            child->markDirty(state);
+    }
+
+private:
+    QString m_shaderKey;
+    QSGGeometry *m_geometry;
+};
 
 class PointsMaterial : public TrackMaterial
 {
@@ -261,10 +394,15 @@ QSGMaterialShader *PointsMaterial::createShader(QSGRendererInterface::RenderMode
 }
 
 // One quad per segment. With a tolerance (in units of the world), the points too close
-// to the previous one are left out.
-void buildLine(QSGGeometry *geometry, const std::vector<QPointF> &points, const QPointF &origin, double tolerance)
+// to the previous one are left out. The vertices carry the data of the points if there is any.
+void buildLine(QSGGeometry *geometry, const std::vector<QPointF> &points, const std::vector<QVector4D> *data,
+               const QPointF &origin, double tolerance)
 {
-    std::vector<QVector2D> kept;
+    struct Kept {
+        QVector2D position;
+        size_t index;
+    };
+    std::vector<Kept> kept;
     kept.reserve(points.size());
     QPointF last;
     for (size_t i = 0; i < points.size(); ++i) {
@@ -276,23 +414,42 @@ void buildLine(QSGGeometry *geometry, const std::vector<QPointF> &points, const 
                 continue;
         }
         const QVector2D relative(float(point.x()-origin.x()), float(point.y()-origin.y()));
-        if (!kept.empty() && relative == kept.back())
+        if (!kept.empty() && relative == kept.back().position)
             continue;
-        kept.push_back(relative);
+        kept.push_back({relative, i});
         last = point;
     }
 
     const int segments = kept.empty() ? 0 : int(kept.size())-1;
     geometry->allocate(4*segments+2, 6*segments);
-    auto vertex = static_cast<LineVertex *>(geometry->vertexData());
-    for (int i = 0; i < segments; ++i) {
-        const QVector2D start = kept[i];
-        const QVector2D end = kept[i+1];
-        for (int corner = 0; corner < 4; ++corner)
-            *vertex++ = {start.x(), start.y(), end.x(), end.y(), float(corner%2), corner < 2 ? -1.0f : 1.0f};
+    const LineVertex first = {-Everywhere, -Everywhere, 0.0f, 0.0f, 0.0f, 0.0f};
+    const LineVertex second = {Everywhere, Everywhere, 0.0f, 0.0f, 0.0f, 0.0f};
+    if (data) {
+        auto vertex = static_cast<DataLineVertex *>(geometry->vertexData());
+        for (int i = 0; i < segments; ++i) {
+            DataLineVertex corner;
+            const QVector2D start = kept[i].position;
+            const QVector2D end = kept[i+1].position;
+            writeVector(corner.dataStart, (*data)[kept[i].index]);
+            writeVector(corner.dataEnd, (*data)[kept[i+1].index]);
+            for (int c = 0; c < 4; ++c) {
+                corner.line = {start.x(), start.y(), end.x(), end.y(), float(c%2), c < 2 ? -1.0f : 1.0f};
+                *vertex++ = corner;
+            }
+        }
+        *vertex++ = {first, {}, {}};
+        *vertex++ = {second, {}, {}};
+    } else {
+        auto vertex = static_cast<LineVertex *>(geometry->vertexData());
+        for (int i = 0; i < segments; ++i) {
+            const QVector2D start = kept[i].position;
+            const QVector2D end = kept[i+1].position;
+            for (int corner = 0; corner < 4; ++corner)
+                *vertex++ = {start.x(), start.y(), end.x(), end.y(), float(corner%2), corner < 2 ? -1.0f : 1.0f};
+        }
+        *vertex++ = first;
+        *vertex++ = second;
     }
-    *vertex++ = {-Everywhere, -Everywhere, 0.0f, 0.0f, 0.0f, 0.0f};
-    *vertex++ = {Everywhere, Everywhere, 0.0f, 0.0f, 0.0f, 0.0f};
     writeQuadIndices(geometry->indexDataAsUInt(), segments);
 }
 
@@ -419,6 +576,9 @@ MapTrack::MapTrack(QQuickItem *parent)
     : MapTrackItem(parent)
     , m_color(Qt::black)
     , m_lineWidth(1.0)
+    , m_shaderPasses(1)
+    , m_secondaryColor(Qt::transparent)
+    , m_dataRevision(NoRevision)
     , m_builtRevision(0)
     , m_builtDetail(-1)
 {
@@ -442,6 +602,69 @@ void MapTrack::setLineWidth(qreal lineWidth)
     Q_EMIT(lineWidthChanged());
 }
 
+void MapTrack::setFragmentShader(const QUrl &fragmentShader)
+{
+    QString file;
+    if (fragmentShader.scheme() == QLatin1String("qrc"))
+        file = QLatin1Char(':')+fragmentShader.path();
+    else if (fragmentShader.isLocalFile())
+        file = fragmentShader.toLocalFile();
+    else if (fragmentShader.scheme().isEmpty())
+        file = fragmentShader.path();
+    else
+        qWarning() << "MapTrack: a fragment shader has to be a local file, which this is not:" << fragmentShader;
+
+    // The time of the file is part of the key, for a shader which was compiled again to be loaded again.
+    QString key;
+    if (!file.isEmpty()) {
+        const QFileInfo info(file);
+        if (info.isFile()) {
+            key = file+QLatin1Char('|')+QString::number(info.lastModified().toMSecsSinceEpoch());
+        } else {
+            qWarning() << "MapTrack: there is no fragment shader at" << file;
+            file.clear();
+        }
+    }
+
+    const bool changed = fragmentShader != m_fragmentShader;
+    m_fragmentShader = fragmentShader;
+    if (key != m_shaderKey) {
+        m_shaderFile = file;
+        m_shaderKey = key;
+        update();
+    }
+    if (changed)
+        Q_EMIT(fragmentShaderChanged());
+}
+
+void MapTrack::setShaderPasses(int passes)
+{
+    passes = qBound(1, passes, MaxPasses);
+    if (passes == m_shaderPasses)
+        return;
+    m_shaderPasses = passes;
+    update();
+    Q_EMIT(shaderPassesChanged());
+}
+
+void MapTrack::setSecondaryColor(const QColor &color)
+{
+    if (color == m_secondaryColor)
+        return;
+    m_secondaryColor = color;
+    update();
+    Q_EMIT(secondaryColorChanged());
+}
+
+void MapTrack::setShaderParameters(const QVector4D &parameters)
+{
+    if (parameters == m_shaderParameters)
+        return;
+    m_shaderParameters = parameters;
+    update();
+    Q_EMIT(shaderParametersChanged());
+}
+
 bool MapTrack::hitTest(const QPointF &mapPoint) const
 {
     if (!map() || points().size() < 2)
@@ -461,9 +684,62 @@ bool MapTrack::hitTest(const QPointF &mapPoint) const
     return false;
 }
 
+// What a fragment shader is told about each point: how long the track is up to
+// there (in units of the world, which follow the zoom level), the distance from
+// the start in meters, the altitude in meters and the time since the first point
+// in seconds.
+void MapTrack::updateData()
+{
+    const std::vector<QPointF> &projected = points();
+    m_data.assign(projected.size(), QVector4D());
+    m_dataMin = m_dataMax = QVector4D();
+    m_dataRevision = revision();
+    if (!track())
+        return;
+    const QVector<QGeoCoordinate> path = track()->path();
+    const QVector<qreal> distances = track()->distances2D();
+    const QVector<QString> timeStamps = track()->timeStamps();
+    if (projected.empty() || size_t(path.size()) != projected.size())
+        return;
+
+    const bool hasDistances = distances.size() == path.size();
+    const bool hasTime = timeStamps.size() == path.size();
+    double length = 0.0;
+    double distance = 0.0;
+    double altitude = 0.0;
+    double time = 0.0;
+    QDateTime start;
+    for (size_t i = 0; i < projected.size(); ++i) {
+        if (i > 0) {
+            const QPointF delta = projected[i]-projected[i-1];
+            length += std::sqrt(QPointF::dotProduct(delta, delta));
+            distance = hasDistances ? distances.at(i) : distance+path.at(i-1).distanceTo(path.at(i));
+        }
+        // The points which lack something are given what the previous one had.
+        if (!std::isnan(path.at(i).altitude()))
+            altitude = path.at(i).altitude();
+        if (hasTime && !timeStamps.at(i).isEmpty()) {
+            const QDateTime stamp = QDateTime::fromString(timeStamps.at(i), Qt::ISODate);
+            if (stamp.isValid() && !start.isValid())
+                start = stamp;
+            if (stamp.isValid())
+                time = start.msecsTo(stamp)/1000.0;
+        }
+        m_data[i] = QVector4D(float(length), float(distance), float(altitude), float(time));
+    }
+
+    m_dataMin = m_dataMax = m_data.front();
+    for (const QVector4D &data : m_data) {
+        for (int i = 0; i < 4; ++i) {
+            m_dataMin[i] = std::fmin(m_dataMin[i], data[i]);
+            m_dataMax[i] = std::fmax(m_dataMax[i], data[i]);
+        }
+    }
+}
+
 QSGNode *MapTrack::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    auto node = static_cast<QSGGeometryNode *>(oldNode);
+    auto node = static_cast<LineNode *>(oldNode);
     QVector2D viewOrigin;
     float scale;
     // A track out of the view does not need its geometry until it comes back.
@@ -472,27 +748,47 @@ QSGNode *MapTrack::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
         return nullptr;
     }
 
-    const double zoom = map()->zoomLevel();
-    const int detail = zoom >= FullDetailZoom ? FullDetail : int(std::ceil(zoom));
+    // Only the lines with a fragment shader of their own carry the data of the track.
+    const bool ownShader = !m_shaderFile.isEmpty();
+    const int passes = ownShader ? m_shaderPasses : 1;
+    if (node && (node->shaderKey() != m_shaderKey || node->passes() != passes)) {
+        delete node;
+        node = nullptr;
+    }
     if (!node) {
-        node = createNode(lineAttributes(), new LineMaterial);
+        node = new LineNode(m_shaderFile, m_shaderKey, passes);
         m_builtDetail = -1;
     }
+    if (ownShader && m_dataRevision != revision()) {
+        updateData();
+    } else if (!ownShader && m_dataRevision != NoRevision) {
+        m_data = std::vector<QVector4D>();
+        m_dataRevision = NoRevision;
+    }
+
+    const double zoom = map()->zoomLevel();
+    const int detail = zoom >= FullDetailZoom ? FullDetail : int(std::ceil(zoom));
     if (detail != m_builtDetail || revision() != m_builtRevision) {
         const double tolerance = detail == FullDetail
                 ? 0.0 : SimplifyTolerance/(MapProjection::TileSize*std::pow(2.0, detail));
-        buildLine(node->geometry(), points(), origin(), tolerance);
-        node->markDirty(QSGNode::DirtyGeometry);
+        buildLine(node->geometry(), points(), ownShader ? &m_data : nullptr, origin(), tolerance);
+        node->markAllDirty(QSGNode::DirtyGeometry);
         m_builtDetail = detail;
         m_builtRevision = revision();
     }
 
-    auto material = static_cast<LineMaterial *>(node->material());
-    material->viewOrigin = viewOrigin;
-    material->scale = scale;
-    material->color = m_color;
-    material->halfWidth = float(m_lineWidth/2.0);
-    node->markDirty(QSGNode::DirtyMaterial);
+    for (int pass = 0; pass < passes; ++pass) {
+        LineMaterial *material = node->material(pass);
+        material->viewOrigin = viewOrigin;
+        material->scale = scale;
+        material->color = m_color;
+        material->secondaryColor = m_secondaryColor;
+        material->parameters = m_shaderParameters;
+        material->dataMin = m_dataMin;
+        material->dataMax = m_dataMax;
+        material->halfWidth = float(m_lineWidth/2.0);
+    }
+    node->markAllDirty(QSGNode::DirtyMaterial);
     return node;
 }
 

@@ -23,7 +23,9 @@
 #include <QColor>
 #include <QGeoRectangle>
 #include <QPointer>
+#include <QUrl>
 #include <QVector2D>
+#include <QVector4D>
 
 #include <vector>
 
@@ -75,11 +77,25 @@ private:
 };
 
 // The line of a track.
+//
+// It is a line of a single color, unless it is given a fragment shader of its
+// own, which decides what the line looks like: it is told where each fragment
+// is relatively to the line, and what the track is like there (distance from
+// the start, altitude, time). shaders/line_altitude.frag describes what such a
+// shader can rely on; the other shaders/line_*.frag are more examples.
 class MapTrack : public MapTrackItem
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(qreal lineWidth READ lineWidth WRITE setLineWidth NOTIFY lineWidthChanged)
+    // A compiled fragment shader (.qsb file, made with the qsb tool of Qt) which draws
+    // the line instead of the default one. The file is read again when it is set anew.
+    Q_PROPERTY(QUrl fragmentShader READ fragmentShader WRITE setFragmentShader NOTIFY fragmentShaderChanged)
+    // How many times the fragment shader draws the track, one time above the other.
+    Q_PROPERTY(int shaderPasses READ shaderPasses WRITE setShaderPasses NOTIFY shaderPassesChanged)
+    // Handed over to the fragment shader.
+    Q_PROPERTY(QColor secondaryColor READ secondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(QVector4D shaderParameters READ shaderParameters WRITE setShaderParameters NOTIFY shaderParametersChanged)
 
 public:
     explicit MapTrack(QQuickItem *parent = nullptr);
@@ -88,18 +104,45 @@ public:
     void setColor(const QColor &color);
     qreal lineWidth() const {return m_lineWidth;}
     void setLineWidth(qreal lineWidth);
+    QUrl fragmentShader() const {return m_fragmentShader;}
+    void setFragmentShader(const QUrl &fragmentShader);
+    int shaderPasses() const {return m_shaderPasses;}
+    void setShaderPasses(int passes);
+    QColor secondaryColor() const {return m_secondaryColor;}
+    void setSecondaryColor(const QColor &color);
+    QVector4D shaderParameters() const {return m_shaderParameters;}
+    void setShaderParameters(const QVector4D &parameters);
     bool hitTest(const QPointF &mapPoint) const override;
 
 Q_SIGNALS:
     void colorChanged();
     void lineWidthChanged();
+    void fragmentShaderChanged();
+    void shaderPassesChanged();
+    void secondaryColorChanged();
+    void shaderParametersChanged();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
 private:
+    void updateData();
+
     QColor m_color;
     qreal m_lineWidth;
+    QUrl m_fragmentShader;
+    // The file of the fragment shader, or nothing for the default one, and
+    // what tells it apart from the previous contents of that file.
+    QString m_shaderFile;
+    QString m_shaderKey;
+    int m_shaderPasses;
+    QColor m_secondaryColor;
+    QVector4D m_shaderParameters;
+    // The data of each point for the fragment shader, and their range.
+    std::vector<QVector4D> m_data;
+    QVector4D m_dataMin;
+    QVector4D m_dataMax;
+    quint64 m_dataRevision;
     // What the geometry of the node was built from.
     quint64 m_builtRevision;
     int m_builtDetail;

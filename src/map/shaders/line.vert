@@ -14,9 +14,15 @@ layout(location = 0) out vec3 local;
 layout(std140, binding = 0) uniform buf {
     mat4 qt_Matrix;
     vec4 color;
+    vec4 secondaryColor;
+    vec4 parameters;
+    vec4 dataMin;
+    vec4 dataMax;
     vec2 origin;     // top left corner of the view
     float scale;     // pixels per unit of the world
     float halfWidth; // pixels
+    float pass;
+    float opacity;
 };
 
 void main()
