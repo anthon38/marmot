@@ -164,41 +164,76 @@ void Track::removePoint(int index)
         m_averagedAltitudes.remove(index);
         m_distances2D.remove(index);
         m_timeStamps.remove(index);
-
-        m_distance2D = 0.0;
-        m_distance3D = 0.0;
-        m_altitudeMin = 0.0;
-        m_altitudeMax = 0.0;
-        for (int i = 0; i < m_distances2D.length(); ++i) {
-            //FIXME: dont recompute minmax if altitude is not an extrema
-            if (i == 0) {
-                m_altitudeMax = m_path.at(i).altitude();
-                m_altitudeMin = m_path.at(i).altitude();
-            } else {
-                m_altitudeMax = qMax(m_altitudeMax, m_path.at(i).altitude());
-                m_altitudeMin = qMin(m_altitudeMin, m_path.at(i).altitude());
-
-                QGeoCoordinate previousPoint(m_path.at(i-1));
-                qreal dist2D = m_path.at(i).distanceTo(previousPoint);
-                qreal diff = m_path.at(i).altitude()-previousPoint.altitude();
-                m_distance2D += dist2D;
-                m_distance3D += qSqrt(dist2D*dist2D+diff*diff);
-            }
-            m_distances2D[i] = m_distance2D;
-        }
-        computeStatistics();
-        if (index == 0 || index == m_timeStamps.length()) {
-            QDateTime t1 = QDateTime::fromString(m_timeStamps.first(), Qt::ISODate);
-            QDateTime t2 = QDateTime::fromString(m_timeStamps.last(), Qt::ISODate);
-            setDuration(t1.secsTo(t2));
-        }
-        Q_EMIT(pathChanged());
-        Q_EMIT(statisticsChanged());
-        Q_EMIT(altitudeMaxChanged());
-        Q_EMIT(altitudeMinChanged());
-        Q_EMIT(distance3DChanged());
-        Q_EMIT(distance2DChanged());
+        pointsRemoved(index == 0 || index == m_timeStamps.length());
     }
+}
+
+int Track::removePoints(const QGeoRectangle &region)
+{
+    if (!region.isValid())
+        return 0;
+
+    const int length = m_path.length();
+    bool endsChanged = false;
+    int kept = 0;
+    for (int i = 0; i < length; ++i) {
+        if (region.contains(m_path.at(i))) {
+            endsChanged = endsChanged || i == 0 || i == length-1;
+            continue;
+        }
+        if (kept != i) {
+            m_path[kept] = m_path.at(i);
+            m_averagedAltitudes[kept] = m_averagedAltitudes.at(i);
+            m_timeStamps[kept] = m_timeStamps.at(i);
+        }
+        ++kept;
+    }
+    if (kept == length)
+        return 0;
+
+    m_path.resize(kept);
+    m_averagedAltitudes.resize(kept);
+    m_distances2D.resize(kept);
+    m_timeStamps.resize(kept);
+    pointsRemoved(endsChanged);
+    return length-kept;
+}
+
+void Track::pointsRemoved(bool endsChanged)
+{
+    m_distance2D = 0.0;
+    m_distance3D = 0.0;
+    m_altitudeMin = 0.0;
+    m_altitudeMax = 0.0;
+    for (int i = 0; i < m_distances2D.length(); ++i) {
+        //FIXME: dont recompute minmax if altitude is not an extrema
+        if (i == 0) {
+            m_altitudeMax = m_path.at(i).altitude();
+            m_altitudeMin = m_path.at(i).altitude();
+        } else {
+            m_altitudeMax = qMax(m_altitudeMax, m_path.at(i).altitude());
+            m_altitudeMin = qMin(m_altitudeMin, m_path.at(i).altitude());
+
+            QGeoCoordinate previousPoint(m_path.at(i-1));
+            qreal dist2D = m_path.at(i).distanceTo(previousPoint);
+            qreal diff = m_path.at(i).altitude()-previousPoint.altitude();
+            m_distance2D += dist2D;
+            m_distance3D += qSqrt(dist2D*dist2D+diff*diff);
+        }
+        m_distances2D[i] = m_distance2D;
+    }
+    computeStatistics();
+    if (endsChanged && !m_timeStamps.isEmpty()) {
+        QDateTime t1 = QDateTime::fromString(m_timeStamps.first(), Qt::ISODate);
+        QDateTime t2 = QDateTime::fromString(m_timeStamps.last(), Qt::ISODate);
+        setDuration(t1.secsTo(t2));
+    }
+    Q_EMIT(pathChanged());
+    Q_EMIT(statisticsChanged());
+    Q_EMIT(altitudeMaxChanged());
+    Q_EMIT(altitudeMinChanged());
+    Q_EMIT(distance3DChanged());
+    Q_EMIT(distance2DChanged());
 }
 
 void Track::setPath(const QVariantList &path)

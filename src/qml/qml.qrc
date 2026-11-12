@@ -3,6 +3,7 @@
         <file>main.qml</file>
         <file>SideBar.qml</file>
         <file>PolyLine.qml</file>
+        <file>MapCanvas.qml</file>
         <file>ChartTooltip.qml</file>
         <file>OpenDialog.qml</file>
         <file>WayPointItem.qml</file>

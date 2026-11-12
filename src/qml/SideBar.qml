@@ -461,8 +461,8 @@ Drawer {
                                 Layout.fillWidth: true
                                 text: address
                                 onClicked: {
-                                    if (searchGeocodeModel.get(index).boundingBox.isValid) {
-                                        mapView.map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingBox, 200)
+                                    if (searchGeocodeModel.get(index).boundingShape.isValid) {
+                                        mapView.map.fitViewportToGeoShape(searchGeocodeModel.get(index).boundingShape, 200)
                                     } else if (searchGeocodeModel.get(index).coordinate.isValid) {
                                         mapView.map.center = searchGeocodeModel.get(index).coordinate
                                         mapView.map.zoomLevel = 16

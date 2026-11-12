@@ -86,10 +86,6 @@ ApplicationWindow {
     Plugin {
         id: osmPlugin
         name: "osm"
-        PluginParameter {
-            name: "osm.mapping.providersrepository.address"
-            value: Marmot.Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Marmot.Utils.location(Marmot.Utils.AppConfigLocation)+"/providers/"
-        }
         PluginParameter { name: "osm.useragent"; value: Qt.application.name }
     }
 
@@ -120,6 +116,7 @@ ApplicationWindow {
         query: aQuery
         autoUpdate: true
         onModelReset: plotInfo.updateRoute()
+        onRoutesChanged: plotInfo.updateRoute()
         onStatusChanged: {
             if (status == RouteModel.Error) {
                 console.log(error+": "+errorString)
@@ -181,7 +178,7 @@ ApplicationWindow {
         }
     }
 
-    MapView {
+    MapCanvas {
         id: mapView
         anchors {
             top: parent.top
@@ -191,162 +188,208 @@ ApplicationWindow {
             leftMargin: -menuButton.anchors.leftMargin
         }
 
-        map.plugin: osmPlugin
+        map.providersPath: Marmot.Settings.booleanValue("providersUseEmbedded", true) ? "qrc:/providers/" : Marmot.Utils.location(Marmot.Utils.AppConfigLocation)+"/providers/"
+        map.userAgent: Qt.application.name+"/"+Qt.application.version
         map.zoomLevel: 10
-        map.onCopyrightLinkActivated: (link) => Qt.openUrlExternally(link)
-        map.activeMapType: map.supportedMapTypes[6]
 
-        Component.onCompleted: centerMap()
+        Component.onCompleted: {
+            var hikingMap = map.mapType("hiking")
+            if (hikingMap)
+                map.activeMapType = hikingMap
+            centerMap()
+        }
 
         map.onZoomLevelChanged: scaleIndicator.update()
         map.onCenterChanged: scaleIndicator.update()
 
         MouseArea {
+            id: mapMouseArea
+
+            // The point of the edited file being moved
+            property var movedPoints: null
+            property int movedIndex: -1
+
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: (routeModel.status == RouteModel.Loading)
                       || (poiGeocodeModel.status == GeocodeModel.Loading)
                          ? Qt.BusyCursor : Qt.ArrowCursor
             enabled: (routeModel.status != RouteModel.Loading) && (poiGeocodeModel.status != GeocodeModel.Loading)
-            propagateComposedEvents: true
+
+            function plotRoute(mouse) {
+                if (mouse.button == Qt.LeftButton) {
+                    if (plotInfo.isAddingPoi) {
+                        poiGeocodeModel.query = mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y))
+                    } else {
+                        aQuery.addWaypoint(mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y)))
+                    }
+                } else {
+                    if (plotInfo.isAddingPoi) {
+                        if (poiModel.count > 0) poiModel.remove(poiModel.count-1)
+                    } else {
+                        if (aQuery.waypoints.length > 0) aQuery.removeWaypoint(aQuery.waypoints[aQuery.waypoints.length-1])
+                    }
+                }
+            }
+
+            // Looks for a point of the edited file at a position of the map
+            function editedPointAt(position) {
+                for (var i = trackPoints.count-1; i >= 0; --i) {
+                    var points = trackPoints.itemAt(i)
+                    var index = points ? points.pointAt(position) : -1
+                    if (index >= 0)
+                        return {"points": points, "index": index}
+                }
+                return null
+            }
+
+            function stopEditing() {
+                movedPoints = null
+                movedIndex = -1
+                mapView.gestureEnabled = true
+            }
 
             onPositionChanged: (mouse) => {
-                if (editToolBar.deletingZone) {
+                if (editToolBar.deletingZone && zoneSelection.visible && !mapView.gestureEnabled) {
                     var xMin = Math.min(zoneSelection.origin.x, mouse.x)
                     var xMax = Math.max(zoneSelection.origin.x, mouse.x)
                     var yMin = Math.min(zoneSelection.origin.y, mouse.y)
                     var yMax = Math.max(zoneSelection.origin.y, mouse.y)
                     zoneSelection.topLeft = mapView.map.toCoordinate(Qt.point(xMin, yMin))
                     zoneSelection.bottomRight = mapView.map.toCoordinate(Qt.point(xMax, yMax))
+                } else if (movedPoints) {
+                    movedPoints.track.movePoint(movedIndex, mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y)))
                 }
             }
             onClicked: (mouse) => {
-                mapView.map.removeMapItem(trackInfoMapItem)
-                if (!plotRouteButton.checked && !editToolBar.deletingZone) {
-                    mouse.accepted = false
+                trackInfoMapItem.visible = false
+                if (plotRouteButton.checked) {
+                    plotRoute(mouse)
+                } else if (!editToolBar.deletingZone && mouse.button == Qt.RightButton) {
+                    var item = mapView.map.mapItemAt(Qt.point(mouse.x, mouse.y))
+                    if (item && item.showInfo)
+                        item.showInfo(Qt.point(mouse.x, mouse.y))
+                }
+            }
+            onDoubleClicked: (mouse) => {
+                if (plotRouteButton.checked) {
+                    // Quick clicks all count
+                    plotRoute(mouse)
                     return
                 }
-                if (plotRouteButton.checked) {
-                    if (mouse.button == Qt.LeftButton) {
-                        if (plotInfo.isAddingPoi) {
-                            poiGeocodeModel.query = mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y))
-                        } else {
-                            aQuery.addWaypoint(mapView.map.toCoordinate(Qt.point(mouse.x, mouse.y)))
-                        }
-                    } else {
-                        if (plotInfo.isAddingPoi) {
-                            if (poiModel.count > 0) poiModel.remove(poiModel.count-1)
-                        } else {
-                            if (aQuery.waypoints.length > 0) aQuery.removeWaypoint(aQuery.waypoints[aQuery.waypoints.length-1])
-                        }
+                if (editToolBar.deletingZone || mouse.button != Qt.LeftButton)
+                    return
+                var position = Qt.point(mouse.x, mouse.y)
+                if (editToolBar.deletingPoint) {
+                    var found = editedPointAt(position)
+                    if (found) {
+                        found.points.track.removePoint(found.index)
+                        return
+                    }
+                }
+                var item = mapView.map.mapItemAt(position)
+                if (item && item.fitToView)
+                    item.fitToView()
+            }
+            onPressed: (mouse) => {
+                var position = Qt.point(mouse.x, mouse.y)
+                if (editToolBar.deletingZone) {
+                    mapView.gestureEnabled = false
+                    zoneSelection.origin = position
+                    zoneSelection.topLeft = mapView.map.toCoordinate(position)
+                    zoneSelection.bottomRight = zoneSelection.topLeft
+                    zoneSelection.visible = true
+                } else if (editToolBar.movingPoint && mouse.button == Qt.LeftButton) {
+                    var found = editedPointAt(position)
+                    if (found) {
+                        mapView.gestureEnabled = false
+                        movedPoints = found.points
+                        movedIndex = found.index
                     }
                 }
             }
-            onPressed: (mouse) => {
-                if (editToolBar.deletingZone) {
-                    mapView.map.gesture.enabled = false
-                    zoneSelection.origin = Qt.point(mouse.x, mouse.y)
-                    mapView.map.addMapItem(zoneSelection)
-                }
-            }
-            onReleased: (mouse) => {
-                if (editToolBar.deletingZone) {
-                    mapView.map.gesture.enabled = true
-                }
-            }
+            onReleased: stopEditing()
+            onCanceled: stopEditing()
         }
 
-        MapItemView {
+        // The route being plotted
+        Marmot.MapTrack {
             z: 1
-            model: routeModel
-            delegate: MapRoute {
-                route: routeData
-                line.color: "blue"
-                line.width: 5
-                smooth: true
-                opacity: 0.9
-                onRouteChanged: plotInfo.updateRoute()
-            }
-            Component.onCompleted: mapView.map.addMapItemView(this)
+            track: plotInfo.file ? plotInfo.file.tracks[0] : null
+            color: "blue"
+            lineWidth: 5
+            opacity: 0.9
+            // The line is made of overlapping parts, they have to be blended as a whole
+            layer.enabled: true
         }
 
-        MapItemView {
-            z: 1
+        Repeater {
             model: aQuery.waypoints
             delegate: WayPointItem {
+                z: 1
                 coordinate: modelData
                 color: "blue"
             }
-            Component.onCompleted: mapView.map.addMapItemView(this)
         }
 
-        MapItemView {
-            z: 11
+        Repeater {
             model: poiModel
             delegate: PoiMapItem {
+                z: 11
                 coordinate: QtPositioning.coordinate(latitude, longitude)
                 text: name
                 imageSource: "qrc:/images/pin_blue.svg"
             }
-            Component.onCompleted: mapView.map.addMapItemView(this)
         }
 
-        Instantiator {
+        // The points of the file being edited
+        Repeater {
+            id: trackPoints
             model: activeFile ? activeFile.tracks : null
-            delegate: MapItemView {
+            delegate: Marmot.MapTrackPoints {
                 z: 2
-                model: ListModel {
-                    id: wpModel
-                }
-                Component.onCompleted: {
-                    var path = modelData.path
-                    for (var i = 0; i < modelData.length; ++i) {
-                        model.append({"latitude": path[i].latitude, "longitude": path[i].longitude})
-                    }
-                }
-
-                delegate: WayPointItem {
-                    readonly property var isSelected: zoneSelection.region.contains(coordinate)
-                    coordinate: QtPositioning.coordinate(latitude, longitude)
-                    color: isSelected ? "black" : "red"
-                    MouseArea {
-                        anchors.fill: parent
-                        drag.target: editToolBar.movingPoint ? parent : null
-                        onReleased: if (editToolBar.movingPoint) modelData.movePoint(index, coordinate)
-                        onDoubleClicked:  if (editToolBar.deletingPoint) remove()
-                    }
-                    Connections {
-                        target: deleteShortcut
-                        function onActivated() {if (isSelected) remove()}
-                    }
-                    function remove() {
-                        modelData.removePoint(index)
-                        wpModel.remove(index)
-                    }
-                }
+                track: modelData
+                color: "red"
+                borderColor: Qt.lighter(color, 2)
+                selectedColor: "black"
+                selectedBorderColor: Qt.lighter(selectedColor, 2)
+                borderWidth: Marmot.Units.devicePixelRatio
+                radius: 2.5*Marmot.Units.devicePixelRatio+borderWidth
+                selection: zoneSelection.visible ? zoneSelection.region : QtPositioning.rectangle()
             }
-            onObjectAdded: mapView.map.addMapItemView(object)
-            onObjectRemoved: mapView.map.removeMapItemView(object)
         }
-    }
 
-    MapQuickItem {
-        id: trackInfoMapItem
-        z: 12
-        sourceItem: Label {
-            id: trackInfoItem
-            padding: Marmot.Units.smallSpacing
-            wrapMode: TextEdit.NoWrap
-            textFormat: Text.RichText
-            background: BackGround {}
+        Marmot.MapRectangle {
+            id: zoneSelection
+            z: 9
+            visible: false
+            property var region: QtPositioning.rectangle(topLeft, bottomRight)
+            property point origin: Qt.point(-1, -1)
+
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                border.color: "black"
+            }
         }
-    }
 
-    MapRectangle {
-        id: zoneSelection
-        z: 9
-        property var region: QtPositioning.rectangle(topLeft, bottomRight)
-        property point origin: Qt.point(-1, -1)
+        Marmot.MapMarker {
+            id: trackInfoMapItem
+            z: 12
+            visible: false
+            width: trackInfoItem.width
+            height: trackInfoItem.height
+            anchorPoint.x: 0
+            anchorPoint.y: height
+
+            Label {
+                id: trackInfoItem
+                padding: Marmot.Units.smallSpacing
+                wrapMode: TextEdit.NoWrap
+                textFormat: Text.RichText
+                background: BackGround {}
+            }
+        }
     }
 
     EditToolBar {
@@ -361,9 +404,15 @@ ApplicationWindow {
             id: deleteShortcut
             sequence: StandardKey.Delete
             context: Qt.ApplicationShortcut
-            onActivated: mapView.map.removeMapItem(zoneSelection)
+            onActivated: {
+                if (zoneSelection.visible && activeFile) {
+                    for (var i = 0; i < activeFile.tracks.length; ++i)
+                        activeFile.tracks[i].removePoints(zoneSelection.region)
+                }
+                zoneSelection.visible = false
+            }
         }
-        onDeletingZoneChanged: if (!deletingZone) mapView.map.removeMapItem(zoneSelection)
+        onDeletingZoneChanged: if (!deletingZone) zoneSelection.visible = false
     }
 
     onActiveFileChanged: {
@@ -376,24 +425,22 @@ ApplicationWindow {
         id: filesModel
 
         onFileAppened: (file) => {
-            mapView.map.removeMapItem(trackInfoMapItem)
+            trackInfoMapItem.visible = false
             // PolyLines
             for (var i = 0; i < file.tracks.length; ++i) {
-                var polyLine = Qt.createComponent("PolyLine.qml").createObject(mapView, {track: file.tracks[i]})
+                var polyLine = Qt.createComponent("PolyLine.qml").createObject(mapView.map, {track: file.tracks[i]})
                 polyLine.objectName = file.tracks[i].objectName+"_polyline"
-                mapView.map.addMapItem(polyLine)
                 profileChart.createSeries(file.tracks[i])
             }
             // Points of interest
             for (var j = 0; j < file.pois.length; ++j) {
-                var poi = Qt.createComponent("PoiMapItem.qml").createObject(mapView, {coordinate: file.pois[j].coordinate, text: file.pois[j].name})
+                var poi = Qt.createComponent("PoiMapItem.qml").createObject(mapView.map, {coordinate: file.pois[j].coordinate, text: file.pois[j].name})
                 poi.objectName = file.pois[j].objectName+"_marker"
-                mapView.map.addMapItemGroup(poi)
             }
         }
 
         onFileRemoved: (file) => {
-            mapView.map.removeMapItem(trackInfoMapItem)
+            trackInfoMapItem.visible = false
             var itemsToRemove = []
             for (var i = 0; i < file.tracks.length; ++i) {
                 itemsToRemove.push(file.tracks[i].objectName+"_polyline")
@@ -505,25 +552,11 @@ ApplicationWindow {
             padding: Marmot.Units.smallSpacing
 
             Repeater {
-                id: mapTypeRepeater
+                model: mapView.map.supportedMapTypes
                 delegate: RadioButton {
                     text: modelData.name
-                    checked: mapView.map.activeMapType.name === modelData.name
+                    checked: mapView.map.activeMapType === modelData
                     onClicked: mapView.map.activeMapType = modelData
-                }
-            }
-            Connections {
-                target: mapView.map
-                function onSupportedMapTypesChanged() {
-                    var supportedStyles = [MapType.StreetMap, MapType.SatelliteMapDay, MapType.TerrainMap, MapType.PedestrianMap]
-                    var availableMaps = []
-                    for (var i = 0; i < mapView.map.supportedMapTypes.length; ++i) {
-                        var type = mapView.map.supportedMapTypes[i]
-                        if (supportedStyles.includes(type.style)) {
-                            availableMaps.push(type)
-                        }
-                    }
-                    mapTypeRepeater.model = availableMaps
                 }
             }
         }
@@ -538,11 +571,8 @@ ApplicationWindow {
         tooltipText: qsTr("Fit to view")
 
         onClicked: {
-            if (mapView.map.mapItems.length > 0) {
-                mapView.map.fitViewportToVisibleMapItems()
-            } else {
+            if (!mapView.map.fitViewportToVisibleMapItems())
                 centerMap()
-            }
         }
     }
 

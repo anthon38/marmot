@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>line.vert.qsb</file>
+        <file>line.frag.qsb</file>
+        <file>points.vert.qsb</file>
+        <file>points.frag.qsb</file>
+    </qresource>
+</RCC>

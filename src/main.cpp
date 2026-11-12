@@ -31,6 +31,9 @@
 #include "iconimage.h"
 #include "settings.h"
 #include "utils.h"
+#include "map/map.h"
+#include "map/mapitem.h"
+#include "map/maptrack.h"
 
 int main(int argc, char *argv[])
 {
@@ -46,6 +49,13 @@ int main(int argc, char *argv[])
     qmlRegisterType<FilesModel>("Marmot", 1, 0, "FilesModel");
     qmlRegisterType<SortFilterProxyModel>("Marmot", 1, 0, "SortFilterProxyModel");
     qmlRegisterType<IconImage>("Marmot", 1, 0, "IconImage");
+    qmlRegisterType<Map>("Marmot", 1, 0, "Map");
+    qmlRegisterType<MapMarker>("Marmot", 1, 0, "MapMarker");
+    qmlRegisterType<MapRectangle>("Marmot", 1, 0, "MapRectangle");
+    qmlRegisterType<MapTrack>("Marmot", 1, 0, "MapTrack");
+    qmlRegisterType<MapTrackPoints>("Marmot", 1, 0, "MapTrackPoints");
+    qmlRegisterAnonymousType<MapItem>("Marmot", 1);
+    qmlRegisterAnonymousType<MapType>("Marmot", 1);
     qmlRegisterSingletonType<Settings>("Marmot", 1, 0, "Settings", &Settings::qmlInstance);
     qmlRegisterSingletonType<Utils>("Marmot", 1, 0, "Utils", &Utils::qmlInstance);
     qmlRegisterSingletonType(QUrl("qrc:/Units.qml"), "Marmot", 1, 0, "Units");

@@ -1,50 +1,18 @@
-/*************************************************************************
- *  Copyright (c) 2019 Anthony Vital <anthony.vital@gmail.com>           *
- *                                                                       *
- *  This file is part of Marmot.                                         *
- *                                                                       *
- *  Marmot is free software: you can redistribute it and/or modify       *
- *  it under the terms of the GNU General Public License as published by *
- *  the Free Software Foundation, either version 3 of the License, or    *
- *  (at your option) any later version.                                  *
- *                                                                       *
- *  Marmot is distributed in the hope that it will be useful,            *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of       *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
- *  GNU General Public License for more details.                         *
- *                                                                       *
- *  You should have received a copy of the GNU General Public License    *
- *  along with Marmot. If not, see <http://www.gnu.org/licenses/>.       *
- *************************************************************************/
-
 import QtQuick 2.15
-import QtLocation 6.9
 import Marmot 1.0 as Marmot
 
-MapPolyline {
-    id: polyLineItem
+Marmot.MapTrack {
+    color: track.color
+    lineWidth: Marmot.Units.gridUnit*0.5
 
-    property var track: null
-    path: track.path
-    line.color: track.color
-    line.width: Marmot.Units.gridUnit*0.5
+    // Shows the statistics of the track at a position of the map
+    function showInfo(position) {
+        trackInfoItem.text = "<center><i>"+track.name+"</i></center>"+track.statistics
+        trackInfoMapItem.coordinate = mapView.map.toCoordinate(position)
+        trackInfoMapItem.visible = true
+    }
 
-    MouseArea {
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onClicked: (mouse) => {
-            if (mouse.button == Qt.RightButton) {
-                mapView.map.addMapItem(trackInfoMapItem)
-                trackInfoItem.text = "<center><i>"+track.name+"</i></center>"+track.statistics
-                trackInfoMapItem.coordinate = mapView.map.toCoordinate(Qt.point(mouse.x+polyLineItem.x, mouse.y+polyLineItem.y))
-                trackInfoMapItem.anchorPoint.x = 0
-                trackInfoMapItem.anchorPoint.y = trackInfoItem.height
-            }
-        }
-        onDoubleClicked: (mouse) => {
-            if (mouse.button == Qt.LeftButton) {
-                mapView.map.fitViewportToGeoShape(track.boundingBox, 200)
-            }
-        }
+    function fitToView() {
+        mapView.map.fitViewportToGeoShape(track.boundingBox, 200)
     }
 }

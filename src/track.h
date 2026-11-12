@@ -73,6 +73,8 @@ public:
     void addPoint(const QGeoCoordinate &point, const QString &timeStamp = QString());
     Q_INVOKABLE void movePoint(int index, const QGeoCoordinate &point);
     Q_INVOKABLE void removePoint(int index);
+    // Removes the points located in a region, and returns how many there were.
+    Q_INVOKABLE int removePoints(const QGeoRectangle &region);
     void setPath(const QVariantList &path);
     void computeStatistics(int nAverage = 3, qreal threshold = 3.0);
 
@@ -88,6 +90,7 @@ Q_SIGNALS:
     void colorChanged();
 
 private:
+    void pointsRemoved(bool endsChanged);
     void computeClimb(qreal threshold = 0);
     void averageAltitudes(int N = 3);
     QString secondsToFormattedString(qint64 s) const;

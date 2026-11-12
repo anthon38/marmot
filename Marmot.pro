@@ -1,5 +1,5 @@
 TARGET = marmot
-QT += qml quick positioning quickcontrols2 widgets
+QT += qml quick positioning quickcontrols2 widgets network
 CONFIG += c++17 qtquickcompiler
 
 # Qt 6.9 specific
@@ -17,7 +17,13 @@ HEADERS += \
     src/sortfilterproxymodel.h \
     src/track.h \
     src/utils.h \
-    src/iconimage.h
+    src/iconimage.h \
+    src/map/map.h \
+    src/map/mapitem.h \
+    src/map/mapprojection.h \
+    src/map/maptrack.h \
+    src/map/maptype.h \
+    src/map/tileloader.h
 
 SOURCES += \
     src/file.cpp \
@@ -29,7 +35,14 @@ SOURCES += \
     src/sortfilterproxymodel.cpp \
     src/track.cpp \
     src/utils.cpp \
-    src/iconimage.cpp
+    src/iconimage.cpp \
+    src/map/map.cpp \
+    src/map/mapitem.cpp \
+    src/map/maptrack.cpp \
+    src/map/maptype.cpp \
+    src/map/tileloader.cpp
+
+INCLUDEPATH += src
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -40,6 +53,7 @@ include(deployment.pri)
 RESOURCES += \
     assets.qrc \
     src/qml/qml.qrc \
+    src/map/shaders/shaders.qrc \
     translations.qrc
 
 lupdate_only{
